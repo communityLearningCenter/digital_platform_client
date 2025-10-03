@@ -1,4 +1,4 @@
-const api = VITE_API_URL; //"https://digital-platform-api.onrender.com"; //
+const api = import.meta.env.VITE_API_URL; //"https://digital-platform-api.onrender.com"; //
 
 function getToken() {
     return localStorage.getItem("token");
