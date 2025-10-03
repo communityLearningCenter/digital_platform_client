@@ -36,7 +36,7 @@ export default function ExamResultList() {
   const [subjectRows, setSubjectRows] = useState([]);
   const {auth} = useApp();
 
-  const fetchFn = auth?.role === "System Administrator" ? fetchAllExamResults : fetchAllExamResultsByLC;
+  const fetchFn = auth?.role === "System Admin" ? fetchAllExamResults : fetchAllExamResultsByLC;
 
   const { isLoading, isError, error, data } = useQuery(
     ["examResults", auth?.role, auth?.learningCenterId], // query key

@@ -57,7 +57,7 @@ export default function Register() {
         onError: () => setError("Cannot create account"),
         onSuccess: () => {
             setGlobalMsg("User Account Created");
-            navigate("/login");
+            navigate("/");
         },
     });
 

@@ -48,7 +48,7 @@ export default function ExamResults() {
     const navigate = useNavigate();
 
     //const {data: students, isLoading, error: fetchError} = useQuery("students", fetchAllStudents);
-    const fetchFn = auth?.role === "System Administrator" ? fetchAllStudents : fetchAllStudentsByLC;
+    const fetchFn = auth?.role === "System Admin" ? fetchAllStudents : fetchAllStudentsByLC;
     
     const { isLoading, isError, error, data: students } = useQuery(
         ["students", auth?.role, auth?.learningCenterId], // query key

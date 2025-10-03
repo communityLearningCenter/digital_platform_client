@@ -34,7 +34,7 @@ export default function StudentList() {
   const [selectedId, setSelectedId] = useState(null);
   const [open, setOpen] = useState(false);
 
-  const fetchFn = auth?.role === "System Administrator" ? fetchAllStudents : fetchAllStudentsByLC;
+  const fetchFn = auth?.role === "System Admin" ? fetchAllStudents : fetchAllStudentsByLC;
 
   const { isLoading, isError, error, data } = useQuery(
     ["students", auth?.role, auth?.learningCenterId], // query key

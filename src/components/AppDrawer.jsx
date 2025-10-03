@@ -45,7 +45,7 @@ function ReportCardIcon(props) {
 
 // 🔑 Menu config per role
 const menuConfig = {
-  "System Administrator": [
+  "System Admin": [
     { label: "Profile", icon: <ProfileIcon />, path: (auth) => `/profile/${auth.id}` },
     { label: "Teachers Registeration", icon: <VTListIcon />, path: "/teachersregisteration" },
     { label: "Teachers List", icon: <VTListIcon />, path: "/teachers" },
