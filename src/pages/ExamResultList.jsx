@@ -1,7 +1,13 @@
-import { useQuery } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useState } from "react";
 import { useApp } from "../ThemedApp";
-import { fetchAllExamResults, fetchAllExamResultsByLC } from "../libs/fetcher";
+import { fetchAllExamResults, fetchAllExamResultsByLC, deleteExamResult } from "../libs/fetcher";
+import FloatingMenuMaterialUI from "../components/FloatingMenuMaterialUI";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import {
     Box,
     Container,
@@ -14,8 +20,9 @@ import {
     Select,
     MenuItem,
     Button,
+    IconButton,
     TextField, 
-    Dialog, DialogTitle,DialogContent,
+    Dialog, DialogTitle,DialogContent, DialogActions,
     Table,
     TableBody,
     TableCell,
@@ -32,9 +39,12 @@ export default function ExamResultList() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
+  const [deldialogopen, setDelDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
   const [subjectRows, setSubjectRows] = useState([]);
   const {auth} = useApp();
+  const queryClient = useQueryClient();
 
   const fetchFn = auth?.role === "System Admin" ? fetchAllExamResults : fetchAllExamResultsByLC;
 
@@ -43,6 +53,25 @@ export default function ExamResultList() {
     () => fetchFn(auth?.learningCenterId),            // pass LC ID for restricted fetch
     { enabled: !!auth }                               // only run if auth is ready
   );
+
+  const mutation = useMutation((id) => deleteExamResult(id), {
+      onSuccess: () => {
+        queryClient.invalidateQueries("examResults"); // refresh list
+        setDelDialogOpen(false);
+      },
+    });
+  
+    const handleDeleteClick = (id) => {
+      setSelectedId(id);
+      console.log("id : ", id);
+      setDelDialogOpen(true);
+    };
+  
+    const confirmDelete = () => {
+      if (selectedId) {
+        mutation.mutate(selectedId);
+      }
+    };
 
   const handleChangePage = (event, value) => {
     setPage(value - 1); // Pagination component is 1-based
@@ -115,7 +144,142 @@ export default function ExamResultList() {
             ), 
         },
         { field: "total_marks", headerName: "Total", width: 100, headerClassName: "super-app-theme--header" },    
+        { field: "actions", headerName: "Actions", width: 120, headeralign: 'center', headerClassName: "super-app-theme--header",
+          renderCell: (params) => (
+            <IconButton 
+              color="error" onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteClick(params.row.id)}
+              }
+            >
+              <DeleteIcon />
+            </IconButton>
+          ),
+        },
     ];
+
+  const exportToExcel = async (rows) => {
+    if (!rows || rows.length === 0) {
+      alert("No data to export!");
+      return;
+    }
+  
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Exam Results");
+  
+    // --- Step 1: Add Row 1 (main headers) ---
+    worksheet.addRow([
+      "Learning Center",
+      "Academic Year", 
+      "Name",
+      "Student ID",
+      "Grade", 
+      "Session",
+      "Myanmar",
+      "Myanmar",
+      "English",
+      "English",
+      "Mathematics",
+      "Mathematics",
+      "Science",
+      "Science",
+      "Society",
+      "Society",
+      "History",
+      "History",
+      "Geography",
+      "Geography",
+      "Child Rights",
+      "Child Rights",
+      "SRHR and Gender",
+      "SRHR and Gender",
+      "PSS",
+      "PSS",
+      "Kid's Club",
+      "Kid's Club",
+      "Attendance",
+      "Attendance", 
+      "Total"
+    ]);
+
+    // --- Step 2: Add Row 2 (subheaders) ---
+    worksheet.addRow([
+      "", "", "", "", "", "", 
+      "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", 
+      "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade",
+      ""
+    ]);
+
+    // --- Step 3: Merge normal columns across Row 1 and Row 2 ---
+    const mergeTwoRowCols = [
+      "A", "B", "C", "D", "E", "F", "AE"
+    ];
+    mergeTwoRowCols.forEach((col) => {
+      worksheet.mergeCells(`${col}1:${col}2`);
+    });
+
+    // --- Step 4: Merge group headers for Row 1 ---
+    worksheet.mergeCells("G1:H1"); // Myanmar
+    worksheet.mergeCells("I1:J1"); // English
+    worksheet.mergeCells("K1:L1"); // Mathematics
+    worksheet.mergeCells("M1:N1"); // Science
+    worksheet.mergeCells("O1:P1"); // Society
+    worksheet.mergeCells("Q1:R1"); // History
+    worksheet.mergeCells("S1:T1"); // Geography
+    worksheet.mergeCells("U1:V1"); // Child Rights
+    worksheet.mergeCells("W1:X1"); // SRHR and Gender
+    worksheet.mergeCells("Y1:Z1"); // PSS
+    worksheet.mergeCells("AA1:AB1"); // Kid's Club
+    worksheet.mergeCells("AC1:AD1"); // Attendance
+
+    // --- Step 5: Style headers ---
+    [1, 2].forEach((rowNumber) => {
+      const row = worksheet.getRow(rowNumber);
+      row.font = { bold: true, size: 12, color: { argb: "FF673AB7" } };
+      row.alignment = { horizontal: "center", vertical: "middle" };
+    });
+
+    // --- Step 6: Add data starting from row 3 ---
+    rows.forEach((row) => {
+      worksheet.addRow([
+        row.lcname,
+        row.acayr,
+        row.student.name,
+        row.student.stuID,
+        row.student.grade,
+        row.session,
+        row.myanmar_mark,
+        row.myanmar_grade,
+        row.english_mark,
+        row.english_grade,
+        row.maths_mark,
+        row.maths_grade,
+        row.science_mark,
+        row.science_grade,
+        row.social_mark,
+        row.social_grade,
+        row.geography_mark,
+        row.geography_grade,
+        row.history_mark,
+        row.history_grade,
+        row.childrights_mark,
+        row.childrights_grade,
+        row.srhr_mark,
+        row.srhr_grade,
+        row.pss_mark,
+        row.pss_grade,
+        row.kidsclub_mark,
+        row.kidsclub_grade,
+        row.attendance_mark,
+        row.attendance_grade,
+        row.total_marks           
+      ]);
+    });
+    
+    // Step 7: Export --- Generate buffer and download
+    const buf = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buf]), `Student_List_${new Date().toISOString()}.xlsx`);
+  };
 
   if (isError) {
     return (
@@ -201,6 +365,17 @@ export default function ExamResultList() {
             </Select>
         </FormControl>
 
+        {/* Confirm dialog */}
+        <Dialog open={deldialogopen} onClose={() => setDelDialogOpen(false)}>
+          <DialogTitle>Are you sure you want to delete this exam result?</DialogTitle>
+          <DialogActions>
+            <Button onClick={() => setDelDialogOpen(false)}>Cancel</Button>
+            <Button onClick={confirmDelete} color="error">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         <Pagination
             count={Math.ceil(data.length / rowsPerPage)}
             page={page + 1}
@@ -263,6 +438,25 @@ export default function ExamResultList() {
           )}
         </DialogContent>
       </Dialog>
+
+      <FloatingMenuMaterialUI
+        tooltip="Student Actions"
+        position={{ bottom: 32, right: 32 }}
+        actions={[
+            {
+                id: "add",
+                icon: <AddIcon sx={{ color: "#000" }} />,
+                label: "Add Student",
+                onClick: () => navigate("/registration/new"),
+            },
+            {
+                id: "export",
+                icon: <PictureAsPdfIcon sx={{ color: "#000" }} />,
+                label: "Export to Excel",
+                onClick: () => exportToExcel(data),
+            }
+        ]}
+    />
     </Container>    
   );
 }

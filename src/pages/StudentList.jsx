@@ -3,6 +3,11 @@ import { useState } from "react";
 import { useApp } from "../ThemedApp";
 import { useNavigate } from "react-router-dom";
 import { fetchAllStudents, fetchAllStudentsByLC, deleteStudent } from "../libs/fetcher";
+import FloatingMenuMaterialUI from "../components/FloatingMenuMaterialUI";
+import AddIcon from "@mui/icons-material/Add";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import {
   Box,
   Container,
@@ -107,7 +112,7 @@ export default function StudentList() {
     },
   ];
 
-  const columnGroupingModel = [
+  /*const columnGroupingModel = [
     {
       groupId: 'Over18',
       headerName: 'Over 18 Years Old',
@@ -118,7 +123,98 @@ export default function StudentList() {
       headerName: 'Under 18 Years Old',
       children: [{field: 'under18Male'}, {field:'under18Female'}], 
     }
-  ];
+  ];*/
+
+  const exportToExcel = async (rows) => {
+    if (!rows || rows.length === 0) {
+      alert("No data to export!");
+      return;
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Students");
+
+    // --- Step 1: Add Row 1 (main headers) ---
+    worksheet.addRow([
+      "Learning Center",
+      "Academic Year",
+      "Name",
+      "Student ID",
+      "Grade",
+      "Gender",
+      "PWD",
+      "Guardian Name",
+      "Guardian NRC",
+      "Family Members",
+      "Over 18 Years Old",
+      "Over 18 Years Old",
+      "Under 18 Years Old",
+      "Under 18 Years Old",
+      "Student Status",
+      "Academic Review",
+      "Kid's Club Student",
+      "Dropout Student",
+    ]);
+
+    // --- Step 2: Add Row 2 (subheaders) ---
+    worksheet.addRow([
+      "", "", "", "", "", "", "", "", "", "",
+      "Male", "Female", "Male", "Female",
+      "", "", "", ""
+    ]);
+
+    // --- Step 3: Merge normal columns across Row 1 and Row 2 ---
+    const mergeTwoRowCols = [
+      "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "O", "P", "Q", "R"
+    ];
+    mergeTwoRowCols.forEach((col) => {
+      worksheet.mergeCells(`${col}1:${col}2`);
+    });
+
+    // --- Step 4: Merge group headers for Row 1 ---
+    worksheet.mergeCells("K1:L1"); // Over 18
+    worksheet.mergeCells("M1:N1"); // Under 18
+
+    // --- Step 5: Style headers ---
+    [1, 2].forEach((rowNumber) => {
+      const row = worksheet.getRow(rowNumber);
+      row.font = { bold: true, size: 12, color: { argb: "FF673AB7" } };
+      row.alignment = { horizontal: "center", vertical: "middle" };
+    });
+
+    // --- Step 6: Add data starting from row 3 ---
+    rows.forEach((row) => {
+      worksheet.addRow([
+        row.lcname,
+        row.acayr,
+        row.name,
+        row.stuID,
+        row.grade,
+        row.gender,
+        row.pwd,
+        row.guardianName,
+        row.guardianNRC,
+        row.familyMember,
+        row.over18Male,
+        row.over18Female,
+        row.under18Male,
+        row.under18Female,
+        row.stuStatus,
+        row.acaReview,
+        row.kidsClubStu,
+        row.dropoutStu,
+      ]);
+    });
+
+    // Optional: set default column widths
+    worksheet.columns.forEach((col) => {
+      if (!col.width) col.width = 15;
+    });
+
+    // --- Step 7: Export ---
+    const buf = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buf]), `Student_List_${new Date().toISOString()}.xlsx`);
+  };
 
   if (isError) {
     return (
@@ -242,6 +338,25 @@ export default function StudentList() {
             }}
         />
       </Box>
+
+      <FloatingMenuMaterialUI
+        tooltip="Student Actions"
+        position={{ bottom: 32, right: 32 }}
+        actions={[
+            {
+                id: "add",
+                icon: <AddIcon sx={{ color: "#000" }} />,
+                label: "Add Student",
+                onClick: () => navigate("/registration/new"),
+            },
+            {
+                id: "export",
+                icon: <PictureAsPdfIcon sx={{ color: "#000" }} />,
+                label: "Export to Excel",
+                onClick: () => exportToExcel(data),
+            }
+        ]}
+    />
     </Container>
   );
 }
