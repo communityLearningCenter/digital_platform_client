@@ -11,6 +11,7 @@ import { fetchUser } from "../libs/fetcher";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
+const api = import.meta.env.VITE_API_URL;
 
 export default function Profile() {
     const { id } = useParams();
@@ -35,7 +36,11 @@ export default function Profile() {
         formData.append("username", data.name); // send username along       
         console.log("data.avatarUrl : ", data.avatarUrl)
 
-        await fetch(`http://localhost:8000/upload-profile?username=${data.name}`, {
+        // await fetch(`http://localhost:8000/upload-profile?username=${data.name}`, {
+        //     method: "POST",
+        //     body: formData,
+        //     });
+        await fetch(`${api}/upload-profile?username=${data.name}`, {
             method: "POST",
             body: formData,
             });
