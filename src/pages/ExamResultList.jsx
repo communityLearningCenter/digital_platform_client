@@ -6,7 +6,7 @@ import FloatingMenuMaterialUI from "../components/FloatingMenuMaterialUI";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import ExcelJS from "exceljs";
+//import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import {
     Box,
@@ -63,7 +63,7 @@ export default function ExamResultList() {
   
     const handleDeleteClick = (id) => {
       setSelectedId(id);
-      console.log("id : ", id);
+      //console.log("id : ", id);
       setDelDialogOpen(true);
     };
   
@@ -98,8 +98,8 @@ export default function ExamResultList() {
     "SRHR and Gender": "srhr",
     "PSS": "pss",
     "Kid's Club": "kidsclub",
-    Attendance: "attendance",
-    };
+    "Attendance": "attendance",
+  };
 
 
   const getSubjectsByGrade = (grade) => {
@@ -121,15 +121,15 @@ export default function ExamResultList() {
         width: 100, 
         headerClassName: "super-app-theme--header",
         renderCell: (params) => (
-            <Button
+          <Button
             size="small"
             variant="text"
             color="black"
             onClick={() => {
                 setSelectedRow(params.row); // store the clicked row data
                 const subjects = getSubjectsByGrade(params.row.grade);
-                console.log("grade : ", params.row.grade)
-                console.log("subjects : ", subjects);
+                //console.log("grade : ", params.row.grade)
+                //console.log("subjects : ", subjects);
                 const rows = subjects.map((sub) => ({
                     subject: sub,
                     mark: params.row[`${subjectKeyMap[sub]}_mark`] ?? "",      // map marks from data
@@ -139,147 +139,24 @@ export default function ExamResultList() {
                 setOpen(true); // open the popup
             }}
             >
-                {params.value}
-            </Button>
-            ), 
-        },
-        { field: "total_marks", headerName: "Total", width: 100, headerClassName: "super-app-theme--header" },    
-        { field: "actions", headerName: "Actions", width: 120, headeralign: 'center', headerClassName: "super-app-theme--header",
+              {params.value}
+          </Button>
+        ), 
+      },
+      { field: "total_marks", headerName: "Total", width: 100, headerClassName: "super-app-theme--header" },    
+      { field: "actions", headerName: "Actions", width: 120, headeralign: 'center', headerClassName: "super-app-theme--header",
           renderCell: (params) => (
-            <IconButton 
-              color="error" onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteClick(params.row.id)}
-              }
-            >
-              <DeleteIcon />
-            </IconButton>
-          ),
-        },
-    ];
-
-  const exportToExcel = async (rows) => {
-    if (!rows || rows.length === 0) {
-      alert("No data to export!");
-      return;
-    }
-  
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Exam Results");
-  
-    // --- Step 1: Add Row 1 (main headers) ---
-    worksheet.addRow([
-      "Learning Center",
-      "Academic Year", 
-      "Name",
-      "Student ID",
-      "Grade", 
-      "Session",
-      "Myanmar",
-      "Myanmar",
-      "English",
-      "English",
-      "Mathematics",
-      "Mathematics",
-      "Science",
-      "Science",
-      "Society",
-      "Society",
-      "History",
-      "History",
-      "Geography",
-      "Geography",
-      "Child Rights",
-      "Child Rights",
-      "SRHR and Gender",
-      "SRHR and Gender",
-      "PSS",
-      "PSS",
-      "Kid's Club",
-      "Kid's Club",
-      "Attendance",
-      "Attendance", 
-      "Total"
-    ]);
-
-    // --- Step 2: Add Row 2 (subheaders) ---
-    worksheet.addRow([
-      "", "", "", "", "", "", 
-      "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", 
-      "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade",
-      ""
-    ]);
-
-    // --- Step 3: Merge normal columns across Row 1 and Row 2 ---
-    const mergeTwoRowCols = [
-      "A", "B", "C", "D", "E", "F", "AE"
-    ];
-    mergeTwoRowCols.forEach((col) => {
-      worksheet.mergeCells(`${col}1:${col}2`);
-    });
-
-    // --- Step 4: Merge group headers for Row 1 ---
-    worksheet.mergeCells("G1:H1"); // Myanmar
-    worksheet.mergeCells("I1:J1"); // English
-    worksheet.mergeCells("K1:L1"); // Mathematics
-    worksheet.mergeCells("M1:N1"); // Science
-    worksheet.mergeCells("O1:P1"); // Society
-    worksheet.mergeCells("Q1:R1"); // History
-    worksheet.mergeCells("S1:T1"); // Geography
-    worksheet.mergeCells("U1:V1"); // Child Rights
-    worksheet.mergeCells("W1:X1"); // SRHR and Gender
-    worksheet.mergeCells("Y1:Z1"); // PSS
-    worksheet.mergeCells("AA1:AB1"); // Kid's Club
-    worksheet.mergeCells("AC1:AD1"); // Attendance
-
-    // --- Step 5: Style headers ---
-    [1, 2].forEach((rowNumber) => {
-      const row = worksheet.getRow(rowNumber);
-      row.font = { bold: true, size: 12, color: { argb: "FF673AB7" } };
-      row.alignment = { horizontal: "center", vertical: "middle" };
-    });
-
-    // --- Step 6: Add data starting from row 3 ---
-    rows.forEach((row) => {
-      worksheet.addRow([
-        row.lcname,
-        row.acayr,
-        row.student.name,
-        row.student.stuID,
-        row.student.grade,
-        row.session,
-        row.myanmar_mark,
-        row.myanmar_grade,
-        row.english_mark,
-        row.english_grade,
-        row.maths_mark,
-        row.maths_grade,
-        row.science_mark,
-        row.science_grade,
-        row.social_mark,
-        row.social_grade,
-        row.geography_mark,
-        row.geography_grade,
-        row.history_mark,
-        row.history_grade,
-        row.childrights_mark,
-        row.childrights_grade,
-        row.srhr_mark,
-        row.srhr_grade,
-        row.pss_mark,
-        row.pss_grade,
-        row.kidsclub_mark,
-        row.kidsclub_grade,
-        row.attendance_mark,
-        row.attendance_grade,
-        row.total_marks           
-      ]);
-    });
-    
-    // Step 7: Export --- Generate buffer and download
-    const buf = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buf]), `Student_List_${new Date().toISOString()}.xlsx`);
-  };
+          <IconButton 
+            color="error" onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteClick(params.row.id)}
+            }
+          >
+            <DeleteIcon />
+          </IconButton>
+        ),        
+      },
+  ];
 
   if (isError) {
     return (
@@ -449,12 +326,12 @@ export default function ExamResultList() {
                 label: "Add Student",
                 onClick: () => navigate("/registration/new"),
             },
-            {
+            /*{
                 id: "export",
                 icon: <PictureAsPdfIcon sx={{ color: "#000" }} />,
                 label: "Export to Excel",
                 onClick: () => exportToExcel(data),
-            }
+            }*/
         ]}
     />
     </Container>    
