@@ -97,10 +97,13 @@ export async function postStudent(data) {
             "Content-Type": "application/json",
         },
     });
-    if (res.ok) {
-        return res.json();
+    const responseData = await res.json().catch(() => ({})); // safely parse JSON if possible
+
+    if (!res.ok) {
+        // Try to get backend message, fallback to HTTP status text
+        const message = responseData?.msg || responseData?.error || res.statusText || "Something went wrong";
+        throw new Error(message);
     }
-    throw new Error("Error: Check Network Log");
 }
 
 export async function updateStudent(id, data) {

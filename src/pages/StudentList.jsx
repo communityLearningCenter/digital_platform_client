@@ -6,6 +6,7 @@ import { fetchAllStudents, fetchAllStudentsByLC, deleteStudent } from "../libs/f
 import FloatingMenuMaterialUI from "../components/FloatingMenuMaterialUI";
 import AddIcon from "@mui/icons-material/Add";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import * as XLSX from "xlsx";
 //import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import {
@@ -124,6 +125,122 @@ export default function StudentList() {
       children: [{field: 'under18Male'}, {field:'under18Female'}], 
     }
   ];*/
+
+const exportToExcel = (rows) => {
+  if (!rows || rows.length === 0) {
+    alert("No data to export!");
+    return;
+  }
+
+  // --- Step 1: Define the header layout ---
+  const headerRow1 = [
+    "Learning Center",
+    "Academic Year",
+    "Name",
+    "Student ID",
+    "Grade",
+    "Gender",
+    "PWD",
+    "Guardian Name",
+    "Guardian NRC",
+    "Family Members",
+    "Over 18 Years Old",
+    "",
+    "Under 18 Years Old",
+    "",
+    "Student Status",
+    "Academic Review",
+    "Kid's Club Student",
+    "Dropout Student",
+  ];
+
+  const headerRow2 = [
+    "", "", "", "", "", "", "", "", "", "",
+    "Male", "Female",
+    "Male", "Female",
+    "", "", "", ""
+  ];
+
+  // --- Step 2: Create data rows ---
+  const dataRows = rows.map((r) => [
+    r.lcname,
+    r.acayr,
+    r.name,
+    r.stuID,
+    r.grade,
+    r.gender,
+    r.pwd,
+    r.guardianName,
+    r.guardianNRC,
+    r.familyMember,
+    r.over18Male,
+    r.over18Female,
+    r.under18Male,
+    r.under18Female,
+    r.studentStatus,
+    r.acaReview,
+    r.kidsClubStu,
+    r.dropoutStu,
+  ]);
+
+  // Combine all rows
+  const allData = [headerRow1, headerRow2, ...dataRows];
+
+  // --- Step 3: Create worksheet from data ---
+  const worksheet = XLSX.utils.aoa_to_sheet(allData);
+
+  // --- Step 4: Define merged cells ---
+  worksheet["!merges"] = [
+    // Merge normal headers over row 1–2
+    { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } }, // Learning Center
+    { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } }, // Academic Year
+    { s: { r: 0, c: 2 }, e: { r: 1, c: 2 } }, // Name
+    { s: { r: 0, c: 3 }, e: { r: 1, c: 3 } }, // Student ID
+    { s: { r: 0, c: 4 }, e: { r: 1, c: 4 } }, // Grade
+    { s: { r: 0, c: 5 }, e: { r: 1, c: 5 } }, // Gender
+    { s: { r: 0, c: 6 }, e: { r: 1, c: 6 } }, // PWD
+    { s: { r: 0, c: 7 }, e: { r: 1, c: 7 } }, // Guardian Name
+    { s: { r: 0, c: 8 }, e: { r: 1, c: 8 } }, // Guardian NRC
+    { s: { r: 0, c: 9 }, e: { r: 1, c: 9 } }, // Family Members
+    { s: { r: 0, c: 14 }, e: { r: 1, c: 14 } }, // Student Status
+    { s: { r: 0, c: 15 }, e: { r: 1, c: 15 } }, // Academic Review
+    { s: { r: 0, c: 16 }, e: { r: 1, c: 16 } }, // Kid's Club Student
+    { s: { r: 0, c: 17 }, e: { r: 1, c: 17 } }, // Dropout Student
+
+    // Merge grouped headers
+    { s: { r: 0, c: 10 }, e: { r: 0, c: 11 } }, // Over 18 Years Old
+    { s: { r: 0, c: 12 }, e: { r: 0, c: 13 } }, // Under 18 Years Old
+  ];
+
+  // --- Step 5: Optional column widths ---
+  worksheet["!cols"] = [
+    { wch: 20 }, // Learning Center
+    { wch: 15 },
+    { wch: 20 },
+    { wch: 15 },
+    { wch: 10 },
+    { wch: 10 },
+    { wch: 10 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 15 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 15 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 20 },
+  ];
+
+  // --- Step 6: Build workbook and export ---
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+
+  const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  saveAs(new Blob([wbout], { type: "application/octet-stream" }), `Student_List_${new Date().toISOString()}.xlsx`);
+};
 
   if (isError) {
     return (
@@ -258,12 +375,12 @@ export default function StudentList() {
                 label: "Add Student",
                 onClick: () => navigate("/registration/new"),
             },
-            /*{
+            {
                 id: "export",
                 icon: <PictureAsPdfIcon sx={{ color: "#000" }} />,
                 label: "Export to Excel",
                 onClick: () => exportToExcel(data),
-            }*/
+            }
         ]}
     />
     </Container>
