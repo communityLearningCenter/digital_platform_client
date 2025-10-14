@@ -40,7 +40,11 @@ export default function Profile() {
         //     method: "POST",
         //     body: formData,
         //     });
-        await fetch(`${api}/upload-profile?username=${data.name}`, {
+        // await fetch(`${api}/upload-profile?username=${data.name}`, {
+        //     method: "POST",
+        //     body: formData,
+        //     });
+        await fetch(`${data.avatarUrl}/upload-profile?username=${data.name}`, {
             method: "POST",
             body: formData,
             });
