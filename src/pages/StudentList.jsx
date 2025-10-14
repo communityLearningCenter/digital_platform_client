@@ -3,6 +3,11 @@ import { useState } from "react";
 import { useApp } from "../ThemedApp";
 import { useNavigate } from "react-router-dom";
 import { fetchAllStudents, fetchAllStudentsByLC, deleteStudent } from "../libs/fetcher";
+import FloatingMenuMaterialUI from "../components/FloatingMenuMaterialUI";
+import AddIcon from "@mui/icons-material/Add";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+//import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import {
   Box,
   Container,
@@ -107,7 +112,7 @@ export default function StudentList() {
     },
   ];
 
-  const columnGroupingModel = [
+  /*const columnGroupingModel = [
     {
       groupId: 'Over18',
       headerName: 'Over 18 Years Old',
@@ -118,7 +123,7 @@ export default function StudentList() {
       headerName: 'Under 18 Years Old',
       children: [{field: 'under18Male'}, {field:'under18Female'}], 
     }
-  ];
+  ];*/
 
   if (isError) {
     return (
@@ -242,6 +247,25 @@ export default function StudentList() {
             }}
         />
       </Box>
+
+      <FloatingMenuMaterialUI
+        tooltip="Student Actions"
+        position={{ bottom: 32, right: 32 }}
+        actions={[
+            {
+                id: "add",
+                icon: <AddIcon sx={{ color: "#000" }} />,
+                label: "Add Student",
+                onClick: () => navigate("/registration/new"),
+            },
+            /*{
+                id: "export",
+                icon: <PictureAsPdfIcon sx={{ color: "#000" }} />,
+                label: "Export to Excel",
+                onClick: () => exportToExcel(data),
+            }*/
+        ]}
+    />
     </Container>
   );
 }

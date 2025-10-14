@@ -1,7 +1,13 @@
-import { useQuery } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useState } from "react";
 import { useApp } from "../ThemedApp";
-import { fetchAllExamResults, fetchAllExamResultsByLC } from "../libs/fetcher";
+import { fetchAllExamResults, fetchAllExamResultsByLC, deleteExamResult } from "../libs/fetcher";
+import FloatingMenuMaterialUI from "../components/FloatingMenuMaterialUI";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+//import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import {
     Box,
     Container,
@@ -14,8 +20,9 @@ import {
     Select,
     MenuItem,
     Button,
+    IconButton,
     TextField, 
-    Dialog, DialogTitle,DialogContent,
+    Dialog, DialogTitle,DialogContent, DialogActions,
     Table,
     TableBody,
     TableCell,
@@ -32,9 +39,12 @@ export default function ExamResultList() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
+  const [deldialogopen, setDelDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
   const [subjectRows, setSubjectRows] = useState([]);
   const {auth} = useApp();
+  const queryClient = useQueryClient();
 
   const fetchFn = auth?.role === "System Admin" ? fetchAllExamResults : fetchAllExamResultsByLC;
 
@@ -43,6 +53,25 @@ export default function ExamResultList() {
     () => fetchFn(auth?.learningCenterId),            // pass LC ID for restricted fetch
     { enabled: !!auth }                               // only run if auth is ready
   );
+
+  const mutation = useMutation((id) => deleteExamResult(id), {
+      onSuccess: () => {
+        queryClient.invalidateQueries("examResults"); // refresh list
+        setDelDialogOpen(false);
+      },
+    });
+  
+    const handleDeleteClick = (id) => {
+      setSelectedId(id);
+      //console.log("id : ", id);
+      setDelDialogOpen(true);
+    };
+  
+    const confirmDelete = () => {
+      if (selectedId) {
+        mutation.mutate(selectedId);
+      }
+    };
 
   const handleChangePage = (event, value) => {
     setPage(value - 1); // Pagination component is 1-based
@@ -69,8 +98,8 @@ export default function ExamResultList() {
     "SRHR and Gender": "srhr",
     "PSS": "pss",
     "Kid's Club": "kidsclub",
-    Attendance: "attendance",
-    };
+    "Attendance": "attendance",
+  };
 
 
   const getSubjectsByGrade = (grade) => {
@@ -92,15 +121,15 @@ export default function ExamResultList() {
         width: 100, 
         headerClassName: "super-app-theme--header",
         renderCell: (params) => (
-            <Button
+          <Button
             size="small"
             variant="text"
             color="black"
             onClick={() => {
                 setSelectedRow(params.row); // store the clicked row data
                 const subjects = getSubjectsByGrade(params.row.grade);
-                console.log("grade : ", params.row.grade)
-                console.log("subjects : ", subjects);
+                //console.log("grade : ", params.row.grade)
+                //console.log("subjects : ", subjects);
                 const rows = subjects.map((sub) => ({
                     subject: sub,
                     mark: params.row[`${subjectKeyMap[sub]}_mark`] ?? "",      // map marks from data
@@ -110,12 +139,24 @@ export default function ExamResultList() {
                 setOpen(true); // open the popup
             }}
             >
-                {params.value}
-            </Button>
-            ), 
-        },
-        { field: "total_marks", headerName: "Total", width: 100, headerClassName: "super-app-theme--header" },    
-    ];
+              {params.value}
+          </Button>
+        ), 
+      },
+      { field: "total_marks", headerName: "Total", width: 100, headerClassName: "super-app-theme--header" },    
+      { field: "actions", headerName: "Actions", width: 120, headeralign: 'center', headerClassName: "super-app-theme--header",
+          renderCell: (params) => (
+          <IconButton 
+            color="error" onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteClick(params.row.id)}
+            }
+          >
+            <DeleteIcon />
+          </IconButton>
+        ),        
+      },
+  ];
 
   if (isError) {
     return (
@@ -201,6 +242,17 @@ export default function ExamResultList() {
             </Select>
         </FormControl>
 
+        {/* Confirm dialog */}
+        <Dialog open={deldialogopen} onClose={() => setDelDialogOpen(false)}>
+          <DialogTitle>Are you sure you want to delete this exam result?</DialogTitle>
+          <DialogActions>
+            <Button onClick={() => setDelDialogOpen(false)}>Cancel</Button>
+            <Button onClick={confirmDelete} color="error">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         <Pagination
             count={Math.ceil(data.length / rowsPerPage)}
             page={page + 1}
@@ -263,6 +315,25 @@ export default function ExamResultList() {
           )}
         </DialogContent>
       </Dialog>
+
+      <FloatingMenuMaterialUI
+        tooltip="Student Actions"
+        position={{ bottom: 32, right: 32 }}
+        actions={[
+            {
+                id: "add",
+                icon: <AddIcon sx={{ color: "#000" }} />,
+                label: "Add Student",
+                onClick: () => navigate("/registration/new"),
+            },
+            /*{
+                id: "export",
+                icon: <PictureAsPdfIcon sx={{ color: "#000" }} />,
+                label: "Export to Excel",
+                onClick: () => exportToExcel(data),
+            }*/
+        ]}
+    />
     </Container>    
   );
 }

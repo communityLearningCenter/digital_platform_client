@@ -206,6 +206,22 @@ export async function fetchAllExamResultsByLC(lcID){
     return res.json();
 }
 
+export async function deleteExamResult(id) {
+  const token = getToken();
+  const res = await fetch(`${api}/examresults/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed to delete exam result: ${res.status}\n${text}`);
+  }
+
+  return res.json();
+}
 export async function fetchAllTeachers(){
     const token = getToken();    
     const res = await fetch(`${api}/teachers`, {
