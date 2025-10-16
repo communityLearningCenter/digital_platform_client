@@ -28,8 +28,6 @@ export default function Register() {
     const { setGlobalMsg, auth } = useApp();  
     const { id } = useParams();
     const isEdit = Boolean(id);
-    console.log("id : ", id);
-    console.log("isEdit : ", isEdit);
     //const [lcname, setLC] = useState('');
 
     //console.log("auth.id : ", auth.id)
@@ -118,7 +116,7 @@ export default function Register() {
             setError("Student Name, Student ID required");
             return;
         }
-
+        console.log("LC Name : ", selectedLC?.lcname)
         const payload = {
             lcname: selectedLC?.lcname || "",
             acayr,
@@ -139,7 +137,6 @@ export default function Register() {
             kidsClubStu,
             dropoutStu,
         };
-        console.log("isEdit in handlesubmit: ", isEdit);
         if (isEdit) {
             update.mutate({ id, data: payload });
         } else {

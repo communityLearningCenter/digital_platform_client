@@ -10,6 +10,7 @@ import * as XLSX from "xlsx";
 //import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import {
+
   Box,
   Container,
   Typography,
@@ -57,7 +58,6 @@ export default function StudentList() {
 
   const handleDeleteClick = (id) => {
     setSelectedId(id);
-    console.log("id : ", id);
     setOpen(true);
   };
 
@@ -96,6 +96,7 @@ export default function StudentList() {
     { field: "over18Female", headerName: "Over 18 (Female)", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
     { field: "under18Male", headerName: "Under 18 (Male)", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
     { field: "under18Female", headerName: "Under 18 (Female)", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "stuStatus", headerName: "Student Status", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
     { field: "acaReview", headerName: "Academic Review", width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
     { field: "kidsClubStu", headerName: "Kid's Club Student", width: 160, headeralign: 'center', headerClassName: "super-app-theme--header" },
     { field: "dropoutStu", headerName: "Dropout Student", width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },

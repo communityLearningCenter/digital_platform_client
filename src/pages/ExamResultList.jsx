@@ -6,6 +6,7 @@ import FloatingMenuMaterialUI from "../components/FloatingMenuMaterialUI";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import * as XLSX from "xlsx";
 //import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import {
@@ -62,8 +63,7 @@ export default function ExamResultList() {
     });
   
     const handleDeleteClick = (id) => {
-      setSelectedId(id);
-      //console.log("id : ", id);
+      setSelectedId(id);      
       setDelDialogOpen(true);
     };
   
@@ -127,9 +127,7 @@ export default function ExamResultList() {
             color="black"
             onClick={() => {
                 setSelectedRow(params.row); // store the clicked row data
-                const subjects = getSubjectsByGrade(params.row.grade);
-                //console.log("grade : ", params.row.grade)
-                //console.log("subjects : ", subjects);
+                const subjects = getSubjectsByGrade(params.row.grade);                
                 const rows = subjects.map((sub) => ({
                     subject: sub,
                     mark: params.row[`${subjectKeyMap[sub]}_mark`] ?? "",      // map marks from data
@@ -157,6 +155,141 @@ export default function ExamResultList() {
         ),        
       },
   ];
+
+  const exportToExcel = (rows) => {
+    if (!rows || rows.length === 0) {
+      alert("No data to export!");
+      return;
+    }
+  
+    // --- Step 1: Define the header layout ---
+    const headerRow1 = [
+      "Learning Center",
+      "Academic Year", 
+      "Name",
+      "Student ID",
+      "Grade", 
+      "Session",
+      "Myanmar",
+      "",
+      "English",
+      "",
+      "Mathematics",
+      "",
+      "Science",
+      "",
+      "Society",
+      "",
+      "History",
+      "",
+      "Geography",
+      "",
+      "Child Rights",
+      "",
+      "SRHR and Gender",
+      "",
+      "PSS",
+      "",
+      "Kid's Club",
+      "",
+      "Attendance",
+      "", 
+      "Total"
+    ];
+  
+    const headerRow2 = [
+      "", "", "", "", "", "", 
+      "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", 
+      "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade", "Mark", "Grade",
+      ""
+    ];
+  
+    // --- Step 2: Create data rows ---
+    const dataRows = rows.map((r) => [
+      r.lcname,
+      r.acayr,
+      r.student.name,
+      r.student.stuID,
+      r.student.grade,
+      r.session,
+      r.myanmar_mark,
+      r.myanmar_grade,
+      r.english_mark,
+      r.english_grade,
+      r.maths_mark,
+      r.maths_grade,
+      r.science_mark,
+      r.science_grade,
+      r.social_mark,
+      r.social_grade,
+      r.geography_mark,
+      r.geography_grade,
+      r.history_mark,
+      r.history_grade,
+      r.childrights_mark,
+      r.childrights_grade,
+      r.srhr_mark,
+      r.srhr_grade,
+      r.pss_mark,
+      r.pss_grade,
+      r.kidsclub_mark,
+      r.kidsclub_grade,
+      r.attendance_mark,
+      r.attendance_grade,
+      r.total_marks  
+    ]);
+  
+    // Combine all rows
+    const allData = [headerRow1, headerRow2, ...dataRows];
+  
+    // --- Step 3: Create worksheet from data ---
+    const worksheet = XLSX.utils.aoa_to_sheet(allData);
+  
+    // --- Step 4: Define merged cells ---
+    worksheet["!merges"] = [
+      // Merge normal headers over row 1–2
+      { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } }, // Learning Center
+      { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } }, // Academic Year
+      { s: { r: 0, c: 2 }, e: { r: 1, c: 2 } }, // Name
+      { s: { r: 0, c: 3 }, e: { r: 1, c: 3 } }, // Student ID
+      { s: { r: 0, c: 4 }, e: { r: 1, c: 4 } }, // Grade
+      { s: { r: 0, c: 5 }, e: { r: 1, c: 5 } }, // Session
+      { s: { r: 0, c: 30 }, e: { r: 1, c: 30 } }, // Total
+      
+  
+      // Merge grouped headers
+      { s: { r: 0, c: 6 }, e: { r: 0, c: 7 } }, // Myanmar
+      { s: { r: 0, c: 8 }, e: { r: 0, c: 9 } }, // English
+      { s: { r: 0, c: 10 }, e: { r: 0, c: 11 } }, // Maths
+      { s: { r: 0, c: 12 }, e: { r: 0, c: 13 } }, // Science
+      { s: { r: 0, c: 14 }, e: { r: 0, c: 15 } }, // Social
+      { s: { r: 0, c: 16 }, e: { r: 0, c: 17 } }, // Geography
+      { s: { r: 0, c: 18 }, e: { r: 0, c: 19 } }, // History
+      { s: { r: 0, c: 20 }, e: { r: 0, c: 21 } }, // Childrights
+      { s: { r: 0, c: 22 }, e: { r: 0, c: 23 } }, // SRHR
+      { s: { r: 0, c: 24 }, e: { r: 0, c: 25 } }, // PSS
+      { s: { r: 0, c: 26 }, e: { r: 0, c: 27 } }, // Kids Club
+      { s: { r: 0, c: 28 }, e: { r: 0, c: 29 } }, // Attendance
+    ];
+  
+    // --- Step 5: Optional column widths ---
+    worksheet["!cols"] = [
+      { wch: 20 }, // Learning Center
+      { wch: 15 }, // Academic Year
+      { wch: 20 }, // Name
+      { wch: 15 }, // Student ID
+      { wch: 10 }, // Grade
+      { wch: 10 }, // Session
+    ];
+  
+    // --- Step 6: Build workbook and export ---
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Exam Results");
+  
+    const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    saveAs(new Blob([wbout], { type: "application/octet-stream" }), `Exam_Result_List_${new Date().toISOString()}.xlsx`);
+  };
+  
 
   if (isError) {
     return (
@@ -326,12 +459,12 @@ export default function ExamResultList() {
                 label: "Add Student",
                 onClick: () => navigate("/registration/new"),
             },
-            /*{
+            {
                 id: "export",
                 icon: <PictureAsPdfIcon sx={{ color: "#000" }} />,
                 label: "Export to Excel",
                 onClick: () => exportToExcel(data),
-            }*/
+            }
         ]}
     />
     </Container>    
