@@ -12,6 +12,7 @@ import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 const api = import.meta.env.VITE_API_URL;
+console.log("api :", api);
 
 export default function Profile() {
     const { id } = useParams();
@@ -33,21 +34,20 @@ export default function Profile() {
         // Upload to backend       
         const formData = new FormData();
         formData.append("image", file);
-        formData.append("username", data.name); // send username along       
-        console.log("data.avatarUrl : ", data.avatarUrl)
+        formData.append("username", data.name); // send username along   
 
-        // await fetch(`http://localhost:8000/upload-profile?username=${data.name}`, {
-        //     method: "POST",
-        //     body: formData,
-        //     });
+         await fetch(`${api}/upload-profile?username=${data.name}`, {
+             method: "POST",
+             body: formData,
+             });
         // await fetch(`${api}/upload-profile?username=${data.name}`, {
         //     method: "POST",
         //     body: formData,
         //     });
-        await fetch(`${data.avatarUrl}/upload-profile?username=${data.name}`, {
+        /*await fetch(`${data.avatarUrl}/upload-profile?username=${data.name}`, {
             method: "POST",
             body: formData,
-            });
+            });*/
     };
 
     if (isError) {
