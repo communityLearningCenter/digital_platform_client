@@ -26,7 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { useApp } from "../ThemedApp";
 
 import { createFilterOptions } from "@mui/material/Autocomplete";
-
+ 
 const filterOptions = createFilterOptions({
     matchFrom: 'any',
     stringify: option => `${option.name} ${option.grade}`
@@ -168,33 +168,6 @@ export default function ExamResults() {
                                     <TextField {...params} label="Learning Center" variant="outlined" fullWidth />
                                 )}
                             />
-
-                        {/* <FormControl fullWidth color="secondary">
-                            <InputLabel id="LabelLC">Learning Center</InputLabel>
-                            <Select
-                                name="lcname"
-                                labelId="LabelLC"
-                                label="Learning Center"
-                                id="formLC"
-                                value={lcname}
-                                onChange={handleFormChange}
-                            >
-                                <MenuItem value=""></MenuItem>
-                                <MenuItem value="Golden Gate">Golden Gate</MenuItem>
-                                <MenuItem value="Bright Hope">Bright Hope</MenuItem>
-                                <MenuItem value={"Banner of Wisdom"}>Banner of Wisdom</MenuItem>
-                                <MenuItem value={"Shining Star"}>Shining Star</MenuItem>
-                                <MenuItem value={"Peace Kawchan"}>Peace Kaw Chan</MenuItem>
-                                <MenuItem value={"Peace Della"}>Peace Della</MenuItem>
-                                <MenuItem value={"Cannan"}>Cannan</MenuItem>
-                                <MenuItem value={"Apyin Yay Kyaw"}>Apyin Yay Kyaw</MenuItem>
-                                <MenuItem value={"Northern Star"}>Northern Star</MenuItem>
-                                <MenuItem value={"Injendone"}>Injendone</MenuItem>
-                                <MenuItem value={"Kyarrapatee"}>Kyarrapatee</MenuItem>
-                                <MenuItem value={"Maw Phaung"}>Maw Phaung</MenuItem>
-                                <MenuItem value={"Shwe Set"}>Shwe Set</MenuItem>
-                            </Select>
-                        </FormControl> */}
 
                         {/* Academic Year */}
                         <FormControl fullWidth color="secondary">

@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import {
+import {  
   Home as HomeIcon,
   Person as ProfileIcon,
   Logout as LogoutIcon,
@@ -22,6 +22,8 @@ import {
   Group as VTListIcon,
   HomeWork as LCIcon,
 } from "@mui/icons-material";
+
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 
 import reportCard from "/report-card_5.png";
 
@@ -46,6 +48,7 @@ function ReportCardIcon(props) {
 // 🔑 Menu config per role
 const menuConfig = {
   "System Admin": [
+    { label: "Dashboard", icon: <DashboardOutlinedIcon/>, path: (auth) => `/dashboard`},
     { label: "Profile", icon: <ProfileIcon />, path: (auth) => `/profile/${auth.id}` },
     { label: "Teachers Registeration", icon: <VTListIcon />, path: "/teachersregisteration" },
     { label: "Teachers List", icon: <VTListIcon />, path: "/teachers" },
@@ -54,6 +57,7 @@ const menuConfig = {
     { label: "Learning Centers", icon: <LCIcon />, path: "/learningcenters" },
     { label: "Exam Results", icon: <ReportCardIcon />, path: "/examresult" },
     { label: "Exam Results List", icon: <ReportCardIcon />, path: "/examresultlist" },
+    { label: "Calculate Avg Grade", icon: <ReportCardIcon />, path: "/calgrade" },
   ],
   "Volunteer Teacher": [
     { label: "Profile", icon: <ProfileIcon />, path: (auth) => `/profile/${auth.id}` },

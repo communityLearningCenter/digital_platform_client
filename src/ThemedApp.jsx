@@ -26,6 +26,8 @@ import StuList from "./pages/StudentList";
 import LCList from "./pages/LearningCenter";
 import ExamResults from "./pages/ExamResult";
 import ExamResultsList from "./pages/ExamResultList";
+import Dashboard from "./pages/Dashboard";
+import Grading from "./pages/Grading";
 
 const AppContext = createContext();
 
@@ -40,6 +42,10 @@ const router = createBrowserRouter([
         path:"/",
         element:<Template></Template>,
         children:[
+            {
+                path:"/dashboard",
+                element:<Dashboard/>,
+            },
             {
                 path:"/home",
                 element:<Home/>,
@@ -87,6 +93,10 @@ const router = createBrowserRouter([
             {
                 path:"/examresultlist",
                 element:<ExamResultsList/>,
+            },
+            {
+                path:"/calgrade",
+                element:<Grading/>,
             },
         ],
     },    

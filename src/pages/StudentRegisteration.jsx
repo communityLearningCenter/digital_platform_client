@@ -5,14 +5,13 @@ import {
     TextField,
     Typography,
     Alert,
-    InputLabel,MenuItem, FormControl, FormLabel,
+    InputLabel,MenuItem, FormControl,
     Select,
-    Autocomplete,
-    CircularProgress
+    Autocomplete
 } from "@mui/material";
 
 import { useParams } from "react-router-dom";
-import { useRef, useState, useEffect } from "react"; 
+import { useState, useEffect } from "react"; 
 import { useMutation, useQuery } from "react-query";
 import { fetchLCsbyUser, postStudent, fetchStudent, updateStudent } from "../libs/fetcher";
 import { useNavigate } from "react-router-dom";

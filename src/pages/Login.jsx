@@ -13,9 +13,11 @@ import { postLogin } from "../libs/fetcher"
 import { useMutation } from "react-query";
 
 export default function Login() {
+    
     const usernameInput = useRef();
     const passwordInput = useRef();
     const [error, setError] = useState(null);
+    
     const handleSubmit = () => {
         const username = usernameInput.current.value;
         const password = passwordInput.current.value;
@@ -35,12 +37,17 @@ export default function Login() {
             onSuccess: async result => {
                 setAuth(result.user);
                 localStorage.setItem("token", result.token);
-                navigate("/home");
+                console.log("role :", result.user.role);
+                if(result.user.role === "System Admin")
+                    navigate("/dashboard");
+                else
+                    navigate("/home");
             },
         }
     );
-    const navigate = useNavigate();
-    const { setAuth } = useApp();
+    const navigate = useNavigate();    
+    const {setAuth } = useApp();
+    
     return (    
        <Container sx={{ width:350, height: 300, mt: 25, border: 1, borderRadius: 5, backgroundColor:'banner'}}>
             <Typography variant="h4" sx={{ mt:-6, ml:-3, pt:1, pl:2, color:'#ef6c00', borderRadius: 5, height: 80, width: 120,backgroundColor:'banner' }}>

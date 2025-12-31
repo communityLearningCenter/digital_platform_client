@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useState } from "react";
 import { useApp } from "../ThemedApp";
-import { fetchAllExamResults, fetchAllExamResultsByLC, deleteExamResult } from "../libs/fetcher";
+import { fetchAllExamResults, fetchAllExamResultsByLC, deleteExamResult, postAvgMarksandGrade } from "../libs/fetcher";
+import { useNavigate } from "react-router-dom";
 import FloatingMenuMaterialUI from "../components/FloatingMenuMaterialUI";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import DownloadIcon from '@mui/icons-material/Download';
+/*import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";*/
+
 import * as XLSX from "xlsx";
 //import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
@@ -43,9 +46,10 @@ export default function ExamResultList() {
   const [deldialogopen, setDelDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
-  const [subjectRows, setSubjectRows] = useState([]);
+  const [subjectRows, setSubjectRows] = useState([]);  
   const {auth} = useApp();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const fetchFn = auth?.role === "System Admin" ? fetchAllExamResults : fetchAllExamResultsByLC;
 
@@ -99,14 +103,15 @@ export default function ExamResultList() {
     "PSS": "pss",
     "Kid's Club": "kidsclub",
     "Attendance": "attendance",
+    "Average": "average"
   };
 
 
   const getSubjectsByGrade = (grade) => {
     if (grade == 'KG' || grade == 'G-1' || grade == 'G-2' || grade == 'G-3' || grade == 'G-4' || grade == 'G-5') {
-        return ["Myanmar", "English", "Mathematics", "Science", "Society", "Child Rights", "SRHR and Gender", "PSS", "Kid's Club", "Attendance"];
+        return ["Myanmar", "English", "Mathematics", "Science", "Society", "Child Rights", "SRHR and Gender", "PSS", "Kid's Club", "Attendance", "Average"];
     }
-        return ["Myanmar", "English", "Mathematics", "Science", "History", "Geography", "Child Rights", "SRHR and Gender", "PSS", "Kid's Club", "Attendance"];
+        return ["Myanmar", "English", "Mathematics", "Science", "History", "Geography", "Child Rights", "SRHR and Gender", "PSS", "Kid's Club", "Attendance", "Average"];
     };
 
   const columns = [    
@@ -150,10 +155,10 @@ export default function ExamResultList() {
               handleDeleteClick(params.row.id)}
             }
           >
-            <DeleteIcon />
+            <DeleteIcon />            
           </IconButton>
         ),        
-      },
+      }
   ];
 
   const exportToExcel = (rows) => {
@@ -194,7 +199,9 @@ export default function ExamResultList() {
       "",
       "Attendance",
       "", 
-      "Total"
+      "Total",
+      "Average Mark",
+      "Average Grade"
     ];
   
     const headerRow2 = [
@@ -236,7 +243,9 @@ export default function ExamResultList() {
       r.kidsclub_grade,
       r.attendance_mark,
       r.attendance_grade,
-      r.total_marks  
+      r.total_marks,
+      r.average_mark,
+      r.average_grade      
     ]);
   
     // Combine all rows
@@ -255,7 +264,8 @@ export default function ExamResultList() {
       { s: { r: 0, c: 4 }, e: { r: 1, c: 4 } }, // Grade
       { s: { r: 0, c: 5 }, e: { r: 1, c: 5 } }, // Session
       { s: { r: 0, c: 30 }, e: { r: 1, c: 30 } }, // Total
-      
+      { s: { r: 0, c: 31 }, e: { r: 1, c: 31 } }, // Avg_Mark
+      { s: { r: 0, c: 32 }, e: { r: 1, c: 32 } }, // Avg_Grade
   
       // Merge grouped headers
       { s: { r: 0, c: 6 }, e: { r: 0, c: 7 } }, // Myanmar
@@ -288,8 +298,7 @@ export default function ExamResultList() {
   
     const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     saveAs(new Blob([wbout], { type: "application/octet-stream" }), `Exam_Result_List_${new Date().toISOString()}.xlsx`);
-  };
-  
+  };  
 
   if (isError) {
     return (
@@ -450,18 +459,18 @@ export default function ExamResultList() {
       </Dialog>
 
       <FloatingMenuMaterialUI
-        tooltip="Student Actions"
+        tooltip="Exam Result Actions"
         position={{ bottom: 32, right: 32 }}
         actions={[
             {
                 id: "add",
                 icon: <AddIcon sx={{ color: "#000" }} />,
-                label: "Add Student",
-                onClick: () => navigate("/registration/new"),
+                label: "Add Exam Result",
+                onClick: () => navigate("/examresult"),
             },
             {
                 id: "export",
-                icon: <PictureAsPdfIcon sx={{ color: "#000" }} />,
+                icon: <DownloadIcon sx={{ color: "#000" }} />,
                 label: "Export to Excel",
                 onClick: () => exportToExcel(data),
             }
