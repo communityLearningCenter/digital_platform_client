@@ -34,7 +34,6 @@ export default function TeacherList() {
         ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         : [];
 
-    console.log("Paginated Rows : ", paginatedRows);
     const columns = [
         { field: "teacherName", headerName: "Teacher Name", width: 160, horizontalalign: 'center', headerClassName: "super-app-theme--header" },
         { field: "teacherNRC", headerName: "Teacher NRC", width: 160, horizontalalign: 'center', headerClassName: "super-app-theme--header" },

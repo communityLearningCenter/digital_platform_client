@@ -24,6 +24,7 @@ import TeachersList from "./pages/TeacherList";
 import StuRegisteration from "./pages/StudentRegisteration";
 import StuList from "./pages/StudentList";
 import LCList from "./pages/LearningCenter";
+import AcaYrs from "./pages/AcademicYear";
 import ExamResults from "./pages/ExamResult";
 import ExamResultsList from "./pages/ExamResultList";
 import Dashboard from "./pages/Dashboard";
@@ -81,11 +82,7 @@ const router = createBrowserRouter([
             {
                 path:"/students",
                 element:<StuList/>,
-            },
-            {
-                path:"/learningcenters",
-                element:<LCList/>,
-            },
+            },            
             {
                 path:"/examresult",
                 element:<ExamResults/>,
@@ -93,6 +90,14 @@ const router = createBrowserRouter([
             {
                 path:"/examresultlist",
                 element:<ExamResultsList/>,
+            },
+            {
+                path:"/learningcenters",
+                element:<LCList/>,
+            },
+            {
+                path:"/acayrs",
+                element:<AcaYrs/>,
             },
             {
                 path:"/calgrade",

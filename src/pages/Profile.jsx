@@ -12,7 +12,6 @@ import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 const api = import.meta.env.VITE_API_URL;
-console.log("api :", api);
 
 export default function Profile() {
     const { id } = useParams();

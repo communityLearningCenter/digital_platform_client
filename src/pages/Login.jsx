@@ -37,7 +37,6 @@ export default function Login() {
             onSuccess: async result => {
                 setAuth(result.user);
                 localStorage.setItem("token", result.token);
-                console.log("role :", result.user.role);
                 if(result.user.role === "System Admin")
                     navigate("/dashboard");
                 else

@@ -28,8 +28,6 @@ export default function Register() {
     const { id } = useParams();
     const isEdit = Boolean(id);
     //const [lcname, setLC] = useState('');
-
-    //console.log("auth.id : ", auth.id)
    
     const { data: learningcenters} = useQuery(
         ["learningcenters", auth?.id],         // query key
@@ -115,7 +113,7 @@ export default function Register() {
             setError("Student Name, Student ID required");
             return;
         }
-        console.log("LC Name : ", selectedLC?.lcname)
+        
         const payload = {
             lcname: selectedLC?.lcname || "",
             acayr,

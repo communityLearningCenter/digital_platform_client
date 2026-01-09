@@ -34,7 +34,6 @@ export async function postLogin(name, password) {
 
 export async function fetchUser(id){
     const token = getToken();    
-    console.log("token : ", token);
     const res = await fetch(`${api}/users/${id}`, {
         headers:{
             Authorization:`Bearer ${token}`,
@@ -91,7 +90,6 @@ export async function fetchStudent(id){
 
 export async function fetchStuCountbyAcaYr(){
     const token = getToken();    
-    console.log('Fetcher API : ' , `${api}/stuCountbyAcaYr`)
     const res = await fetch(`${api}/stuCountbyAcaYr`, {
         headers:{
             Authorization:`Bearer ${token}`,
@@ -269,7 +267,6 @@ export async function fetchAllExamResults(){
 
 export async function fetchAllExamResultsByLC(lcID){
     const token = getToken();   
-    console.log("api : ", api);
     const res = await fetch(`${api}/learningcenters/${lcID}/examresults`, {
         headers:{
             Authorization:`Bearer ${token}`,
@@ -299,7 +296,6 @@ export async function deleteExamResult(id) {
 }
 
 export async function postAvgMarksandGrade(id){    
-    console.log("data for avg in fetcher : ", id);
     const res = await fetch(`${api}/postAvgMarksandGrade/${id}`, {
         method: "POST",
         body: JSON.stringify(id),
@@ -397,4 +393,34 @@ export async function fetchGradingCountforUPforSecondSession(){
         throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
     }
     return res.json();
+}
+
+export async function fetchAllAcaYrs(){
+    const token = getToken();    
+    const res = await fetch(`${api}/acayrs`, {
+        headers:{
+            Authorization:`Bearer ${token}`,
+        },
+    });
+    if (!res.ok) {
+        const text = await res.text(); // Read text to inspect error
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
+export async function updateAcaYr(id, data) {
+  const token = getToken();
+  const res = await fetch(`${api}/acayrs/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to update academic year: ${res.status}`); 
+  }
+  return res.json();
 }

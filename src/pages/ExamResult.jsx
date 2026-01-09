@@ -68,9 +68,7 @@ export default function ExamResults() {
 
     useEffect(() => {
         if (selectedStudent) {            
-            console.log("Selected Grade : ", selectedStudent.grade);
             const subjects = getSubjectsByGrade(selectedStudent.grade);
-            console.log("subjects : ", subjects)
             setSubjectRows(subjects.map(sub => ({
                 subject: sub,
                 mark: "",

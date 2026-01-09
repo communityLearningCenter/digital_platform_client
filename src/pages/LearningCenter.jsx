@@ -38,8 +38,8 @@ export default function LearningCenter() {
     const handleExportCSV = () => {
         if (!Array.isArray(data)) return;
 
-        const headers = ["ID", "Learning Center", "Region"];
-        const rows = data.map((row) => [row.id, row.lcname, row.region]);
+        const headers = ["ID", "Learning Center", "Region", "Status"];
+        const rows = data.map((row) => [row.id, row.lcname, row.region, row.status]);
 
         const csvContent = [headers, ...rows]
         .map((e) =>
@@ -70,6 +70,12 @@ export default function LearningCenter() {
         {
             field: "region",
             headerName: "Region",
+            flex: 1,
+            headerClassName: "super-app-theme--header",
+        },
+        {
+            field: "status",
+            headerName: "Status",
             flex: 1,
             headerClassName: "super-app-theme--header",
         },

@@ -29,6 +29,8 @@ import {
 } from "@mui/icons-material";
 
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
+import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
 
 import reportCard from "/report-card_5.png";
 import { useApp } from "../ThemedApp";
@@ -62,11 +64,14 @@ const menuConfig = {
       { label: "Student Registeration", icon: <StudRegisterIcon />, path: "/registration" },
       { label: "Student List", icon: <StuListIcon />, path: "/students" },]
     },    
-    { label: "Learning Centers", icon: <LCIcon />, path: "/learningcenters" },
     { label: "Exam Results", icon: <ReportCardIcon />, children: [
       { label: "Exam Results", icon: <ReportCardIcon />, path: "/examresult" },
       { label: "Exam Results List", icon: <ReportCardIcon />, path: "/examresultlist" },]
-    },    
+    }, 
+    { label: "Setup", icon: <SettingsTwoToneIcon/>, children: [
+      { label: "Learning Centers", icon: <LCIcon />, path: "/learningcenters" },
+      { label: "Academic Years", icon: <CalendarMonthTwoToneIcon />, path: "/acayrs" },]
+    },
     //{ label: "Calculate Avg Grade", icon: <ReportCardIcon />, path: "/calgrade" },
   ],
   "Volunteer Teacher": [
