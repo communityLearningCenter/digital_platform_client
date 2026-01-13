@@ -28,6 +28,7 @@ import {
   Button
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DownloadIcon from '@mui/icons-material/Download';
 import { DataGrid } from "@mui/x-data-grid";
 
 export default function StudentList() {
@@ -378,7 +379,7 @@ const exportToExcel = (rows) => {
             },
             {
                 id: "export",
-                icon: <PictureAsPdfIcon sx={{ color: "#000" }} />,
+                icon: <DownloadIcon sx={{ color: "#000" }} />,
                 label: "Export to Excel",
                 onClick: () => exportToExcel(data),
             }

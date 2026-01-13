@@ -525,17 +525,20 @@ export default function Dashboard() {
                 {/* ===== Bar Charts Row ===== */}
                 <Grid container spacing={2} mb={3}>
                     <Grid item xs={12} md={6}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '1090px' }}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 400, width: '1090px' }}>
                             <CardContent>
                                 <Typography variant="subtitle1" fontWeight={600} mb={2}>
                                 Students Count by Grade for All Learning Centers
                                 </Typography>
 
-                                <ResponsiveContainer width="100%" height={240}>
-                                <BarChart data={stuCountbyGrade ?? []}>
+                                <ResponsiveContainer width="100%" height={300}>
+                                <BarChart 
+                                    data={stuCountbyGrade ?? []}
+                                    margin={{ top: 30, right: 20, left: 20, bottom: 10 }}
+                                >
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis dataKey="grade" />
-                                    <YAxis />
+                                    <YAxis domain={[0, 'dataMax + 20']}/>
                                     <Tooltip />
                                     <Bar dataKey="count" barSize={35} >
                                         <LabelList 
