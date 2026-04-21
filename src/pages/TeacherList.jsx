@@ -1,6 +1,8 @@
 import { useQuery } from "react-query";
 import { useState } from "react";
 import { fetchAllTeachers } from "../libs/fetcher";
+import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 import {
     Box,
     Container,
@@ -20,6 +22,14 @@ export default function TeacherList() {
 
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const navigate = useNavigate();
+
+    const formatDate = (value) => {
+        if (!value) return "";
+        const date = new Date(value);
+        return format(new Date(value), "dd/MM/yyyy");
+        //return date.toLocaleDateString("en-GB"); // en-GB → dd/MM/yyyy
+    };
 
     const handleChangePage = (event, value) => {
         setPage(value - 1); // Pagination component is 1-based
@@ -42,7 +52,9 @@ export default function TeacherList() {
         { field: "lcname", headerName: "Learning Center", width: 160, horizontalalign: 'center', headerClassName: "super-app-theme--header" },
         { field: "address", headerName: "Address", width: 140, horizontalalign: 'center', headerClassName: "super-app-theme--header" },
         { field: "phnumber", headerName: "Phone", width: 140, horizontalalign: 'center', headerClassName: "super-app-theme--header" },
-        { field: "joinDate", headerName: "Join Date ", width: 130, horizontalalign: 'center', headerClassName: "super-app-theme--header"}        
+        { field: "joinDate", headerName: "Join Date ", width: 130, horizontalalign: 'center', headerClassName: "super-app-theme--header", 
+            renderCell: (params) => formatDate(params.row.joinDate)
+        }    
     ];
 
     if (isError) {
@@ -59,21 +71,21 @@ export default function TeacherList() {
             <CircularProgress />
         </Box>
         );
-    }
+    }    
 
     return (
         <Container maxWidth={false} sx={{ mt: 20, width: '950px' }}>
             <Typography
                 variant="h4"
                 sx={{
-                pl: 2,
-                pt: 1,
-                mb: 2,
-                color: "#ef6c00",
-                backgroundColor: "banner",
-                borderRadius: 5,
-                height: 90,
-                width: 300,
+                    pl: 2,
+                    pt: 1,
+                    mb: 2,
+                    color: "#ef6c00",
+                    backgroundColor: "banner",
+                    borderRadius: 5,
+                    height: 90,
+                    width: 300,
                 }}
             >
                 Teachers List
@@ -99,6 +111,7 @@ export default function TeacherList() {
                     hideFooter
                     getRowId={(row) => row.id}               
                     sx={{ p:2, borderRadius: 2, backgroundColor: "banner"}}
+                    onRowClick={(params) => navigate(`/teachersregisteration/${params.row.id}`)}
                 />
             </Box>
 

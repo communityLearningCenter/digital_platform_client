@@ -13,7 +13,7 @@ import {
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react"; 
 import { useMutation, useQuery } from "react-query";
-import { fetchLCsbyUser, postStudent, fetchStudent, updateStudent } from "../libs/fetcher";
+import { fetchLCsbyUser, postStudent, fetchStudent, fetchStudentbyStuID, updateStudent } from "../libs/fetcher";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../ThemedApp";
 
@@ -27,13 +27,12 @@ export default function Register() {
     const { setGlobalMsg, auth } = useApp();  
     const { id } = useParams();
     const isEdit = Boolean(id);
-    //const [lcname, setLC] = useState('');
    
     const { data: learningcenters} = useQuery(
         ["learningcenters", auth?.id],         // query key
         () => fetchLCsbyUser(auth?.id),        // query function
         { enabled: !!auth?.id }                // only run if id exists
-        );
+    );
     
     // Fetch student if edit mode
     const { data: student, isLoading } = useQuery(
@@ -109,8 +108,8 @@ export default function Register() {
     };
 
     const handleSubmit = () => {
-        if (!name || !stuID) {
-            setError("Student Name, Student ID required");
+        if (!name || !stuID || !grade || !stuStatus || !acaReview || !kidsClubStu || !dropoutStu) {
+            setError("Student Name, Student ID and Grade are required");
             return;
         }
         
@@ -122,7 +121,7 @@ export default function Register() {
             grade,
             gender,
             pwd,
-            guardianName,
+            guardianName,                                                                           
             guardianNRC,
             familyMember: parseInt(familyMember, 10) || 0,
             over18Male: parseInt(over18Male, 10) || 0,
@@ -160,6 +159,7 @@ export default function Register() {
         setAcaReview("");
         setKidsClubStu("");
         setDropoutStu("");
+        navigate("/registration/new");
     };
 
     const create = useMutation(async data => postStudent(data), {        
@@ -178,6 +178,26 @@ export default function Register() {
             setGlobalMsg("Successfully Updated");
             navigate("/students");
         },
+    });
+
+    const findStudentByStuID = useMutation(fetchStudentbyStuID, {
+        onSuccess: (data) => {
+            setName(data.name || "");
+            setGender(data.gender || "");
+            setPWD(data.pwd || "");
+            setGuardianName(data.guardianName || "");
+            setGuardianNRC(data.guardianNRC || "");       
+            setFamilyMember(data.familyMember || "");
+            setUnder18Male(data.under18Male || 0);   
+            setUnder18Female(data.under18Female || 0);
+            setOver18Male(data.over18Male || 0);   
+            setOver18Female(data.over18Female || 0);
+            setStuStatus(data.stuStatus || "");
+        },
+        onError: () => {
+            // Optional: return message if not found
+            setGlobalMsg("Student not found. New registration.");
+        }
     });
 
     useEffect(() => {
@@ -299,14 +319,42 @@ export default function Register() {
                                     label="Academic Year"
                                     value={acayr}                                    
                                     onChange={handleChange}
-                                    color="secondary" focused       
+                                    color="secondary" focused    
+                                    required
+                                    error={!acayr}
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
                                     <MenuItem value={"2024 - 2025"}>2024 - 2025</MenuItem>
-                                    <MenuItem value={"2025 - 2026"}>2025 - 2026</MenuItem>                                
+                                    <MenuItem value={"2025 - 2026"}>2025 - 2026</MenuItem> 
+                                    <MenuItem value={"2025 - 2026"}>2026 - 2027</MenuItem>                               
                                 </Select>
+                                {!acayr && (
+                                <Typography variant="caption" color="error">
+                                    Academic Year is required
+                                </Typography>                              
+                            )}
                             </FormControl>
-                        </Box>                    
+                        </Box>    
+
+                        <TextField
+                            label="Student ID"
+                            value={stuID}
+                            onChange={(e) => setStuID(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && stuID) {
+                                    e.preventDefault();
+                                    findStudentByStuID.mutate(stuID);
+                                }
+                            }}
+                            fullWidth
+                            color="secondary"
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 1,
+                                mt: 0.5,
+                            }}
+                        />                
 
                         <TextField
                             label="Student Name"
@@ -320,21 +368,7 @@ export default function Register() {
                                 gap: 1,
                                 mt: 0.5,
                             }}
-                        />
-
-                        <TextField
-                            label="Student ID"
-                            value={stuID}
-                            onChange={(e) => setStuID(e.target.value)}
-                            fullWidth
-                            color="secondary"
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 1,
-                                mt: 0.5,
-                            }}
-                        />   
+                        />                           
 
                         <Box
                         sx={{
@@ -352,7 +386,9 @@ export default function Register() {
                                     value={grade}
                                     label="Grade"
                                     onChange={handleChange}
-                                    color="secondary" focused       
+                                    color="secondary" focused    
+                                    required   
+                                    error={!grade}
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
                                     <MenuItem value={"KG"}>KG</MenuItem>
@@ -367,6 +403,11 @@ export default function Register() {
                                     <MenuItem value={"G-9"}>G-9</MenuItem>
                                     <MenuItem value={"G-10"}>G-10</MenuItem>                                
                                 </Select>
+                                {!grade && (
+                                <Typography variant="caption" color="error">
+                                    Grade is required
+                                </Typography>
+                            )}
                             </FormControl>
                         </Box>
 
@@ -576,12 +617,19 @@ export default function Register() {
                                     value={stuStatus}
                                     label="Student Status"
                                     onChange={handleChange}
+                                    required
+                                    error={!stuStatus}
                                     color="secondary"       
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
                                     <MenuItem value={"Old"}>Old</MenuItem>
                                     <MenuItem value={"New"}>New</MenuItem>                                                             
                                 </Select>
+                                {!stuStatus && (
+                                <Typography variant="caption" color="error">
+                                    Student Status is required
+                                </Typography>    
+                            )} 
                             </FormControl>
                         </Box>
 
@@ -601,6 +649,8 @@ export default function Register() {
                                     value={acaReview}
                                     label="Academic Review"
                                     onChange={handleChange}
+                                    required
+                                    error={!acaReview}
                                     color="secondary"       
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
@@ -627,6 +677,11 @@ export default function Register() {
                                     <MenuItem value={"G10 Passed"}>G10 Passed</MenuItem>
                                     <MenuItem value={"G10 Failed"}>G10 Failed</MenuItem>                        
                                 </Select>
+                                {!acaReview && (
+                                <Typography variant="caption" color="error">
+                                    Academic Review is required
+                                </Typography>    
+                            )} 
                             </FormControl>
                         </Box>
 
@@ -646,12 +701,19 @@ export default function Register() {
                                     value={kidsClubStu}
                                     label="Kid's Club Student"
                                     onChange={handleChange}
+                                    required
+                                    error={!kidsClubStu}
                                     color="secondary"       
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
                                     <MenuItem value={"Yes"}>Yes</MenuItem>
                                     <MenuItem value={"No"}>No</MenuItem>                                                             
                                 </Select>
+                                {!kidsClubStu && (
+                                <Typography variant="caption" color="error">
+                                    Kids' Club Student Status is required
+                                </Typography>    
+                            )} 
                             </FormControl>
                         </Box>
 
@@ -671,12 +733,19 @@ export default function Register() {
                                     value={dropoutStu}
                                     label="Drop Out Student"
                                     onChange={handleChange}
+                                    required
+                                    error={!dropoutStu}
                                     color="secondary"       
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
                                     <MenuItem value={"Yes"}>Yes</MenuItem>
                                     <MenuItem value={"No"}>No</MenuItem>                                                             
                                 </Select>
+                                {!dropoutStu && (
+                                <Typography variant="caption" color="error">
+                                    Drop Out Student Status is required
+                                </Typography>    
+                            )} 
                             </FormControl>
                         </Box>
 

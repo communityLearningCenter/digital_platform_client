@@ -31,6 +31,7 @@ import {
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
 import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
+import ClassIcon from '@mui/icons-material/Class';
 
 import reportCard from "/report-card_5.png";
 import { useApp } from "../ThemedApp";
@@ -68,6 +69,7 @@ const menuConfig = {
       { label: "Exam Results", icon: <ReportCardIcon />, path: "/examresult" },
       { label: "Exam Results List", icon: <ReportCardIcon />, path: "/examresultlist" },]
     }, 
+    { label: "Teaching Materials", icon: <ClassIcon />, path: (auth) => `/teachingmaterials/${auth.id}` },
     { label: "Setup", icon: <SettingsTwoToneIcon/>, children: [
       { label: "Learning Centers", icon: <LCIcon />, path: "/learningcenters" },
       { label: "Academic Years", icon: <CalendarMonthTwoToneIcon />, path: "/acayrs" },]
@@ -84,6 +86,7 @@ const menuConfig = {
       { label: "Exam Results", icon: <ReportCardIcon />, path: "/examresult" },
       { label: "Exam Results List", icon: <ReportCardIcon />, path: "/examresultlist" },]
     },  
+    { label: "Teaching Materials", icon: <ClassIcon />, path: (auth) => `/teachingmaterials/${auth.id}` },
   ],
   Guest: [
     { label: "Register", icon: <RegisterIcon />, path: "/register" },

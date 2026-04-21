@@ -29,6 +29,7 @@ import ExamResults from "./pages/ExamResult";
 import ExamResultsList from "./pages/ExamResultList";
 import Dashboard from "./pages/Dashboard";
 import Grading from "./pages/Grading";
+import TeachingMaterials from "./pages/TeachingMaterials";
 
 const AppContext = createContext();
 
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
                 path:"/teachersregisteration",
                 element:<TeacherRegisteration/>,
             },
+             {
+                path:"/teachersregisteration/:id",
+                element:<TeacherRegisteration/>,
+            },
             {
                 path:"/teachers",
                 element:<TeachersList/>,
@@ -90,6 +95,10 @@ const router = createBrowserRouter([
             {
                 path:"/examresultlist",
                 element:<ExamResultsList/>,
+            },
+            {
+                path:"/teachingmaterials/:id",
+                element:<TeachingMaterials/>,
             },
             {
                 path:"/learningcenters",

@@ -43,6 +43,7 @@ export default function ExamResults() {
     const { auth, setGlobalMsg } = useApp();    
     //const [lcname, setLC] = useState('');
     const [acayr, setAcaYr] = useState('');
+    const [grade, setGrade] = useState('');
     const [session, setSession] = useState('');
     //const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -69,6 +70,7 @@ export default function ExamResults() {
     useEffect(() => {
         if (selectedStudent) {            
             const subjects = getSubjectsByGrade(selectedStudent.grade);
+            setGrade(selectedStudent.grade);
             setSubjectRows(subjects.map(sub => ({
                 subject: sub,
                 mark: "",
@@ -121,6 +123,7 @@ export default function ExamResults() {
     const handleClear = () => {
         setSelectedLC(null);//setLC('');
         setAcaYr('');
+        setGrade('');
         setSession('');
         setSelectedStudent(null);
         setSubjectRows([]);
@@ -198,6 +201,32 @@ export default function ExamResults() {
                             )}
                         />
 
+                        {/* Grade */}
+                        <FormControl fullWidth color="secondary">
+                            <InputLabel id="LabelGrade">Grade</InputLabel>
+                            <Select
+                                name="grade"
+                                labelId="LabelGrade" 
+                                id="formGrade"
+                                value={grade}
+                                label="Grade"                                
+                                color="secondary" focused   
+                                disabled="true"
+                                fullWidth>
+                                <MenuItem value={""}></MenuItem>
+                                <MenuItem value={"KG"}>KG</MenuItem>
+                                <MenuItem value={"G-1"}>G-1</MenuItem>
+                                <MenuItem value={"G-2"}>G-2</MenuItem>
+                                <MenuItem value={"G-3"}>G-3</MenuItem>
+                                <MenuItem value={"G-4"}>G-4</MenuItem>
+                                <MenuItem value={"G-5"}>G-5</MenuItem>
+                                <MenuItem value={"G-6"}>G-6</MenuItem>
+                                <MenuItem value={"G-7"}>G-7</MenuItem>
+                                <MenuItem value={"G-8"}>G-8</MenuItem>
+                                <MenuItem value={"G-9"}>G-9</MenuItem>
+                                <MenuItem value={"G-10"}>G-10</MenuItem> 
+                            </Select>
+                        </FormControl>
                         {/* Session */}
                         <FormControl fullWidth color="secondary">
                             <InputLabel id="LabelSession">Session</InputLabel>

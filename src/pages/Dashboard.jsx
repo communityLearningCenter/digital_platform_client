@@ -5,14 +5,22 @@ import {
     CardContent,
     Typography,
     useTheme,
-    Container
+    Container,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Autocomplete,
+    TextField,
 } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import SchoolIcon from "@mui/icons-material/School";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import AssessmentIcon from "@mui/icons-material/Assessment";
-import { useQuery } from "react-query";
-import { fetchStuCountbyAcaYr, fetchStuCountbyGrade, fetchKCStuCountbyLC, fetchStuCountbyGender, fetchTotalCount, 
+import { useQueryClient, useQuery } from "react-query";
+import { useEffect, useState } from "react"; 
+import { createFilterOptions } from "@mui/material/Autocomplete";
+import { fetchStuCountbyAcaYr, fetchStuCountbyGrade, fetchKCStuCountbyLC, fetchStuCountbyGender, fetchStudentbyEnrollStatus, fetchPWDStuCountbyGender, fetchTotalCount, fetchAllAcaYrs,
     fetchGradingCountforLPforFirstSession, fetchGradingCountforLPforSecondSession,
     fetchGradingCountforUPforFirstSession, fetchGradingCountforUPforSecondSession,} from "../libs/fetcher";
 import {
@@ -31,65 +39,14 @@ import {
     Legend,
     LabelList
 } from "recharts";
-import {RechartsDevtools} from '@recharts/devtools';
 
-// Dummy data (replace with API later)
-
-const studentData = [
-    { year: "2021", students: 800 },
-    { year: "2022", students: 900 },
-    { year: "2023", students: 1000 },
-    { year: "2024", students: 1150 },
-    { year: "2025", students: 1240 },
-    { year: "2026", students: 800 }    
-];
-
-const examDataforLowerPrimary = [
-    { name: "A", value: 100 },
-    { name: "E", value: 820 },
-    { name: "S", value: 120 }
-];
-
-const examDataforUpperPrimary = [
-    { name: "A", value: 100 },
-    { name: "B", value: 820 },
-    { name: "C", value: 120 },
-    { name: "D", value: 120 }
-];
-
-const barChartData = [
-    { lcname: "LC1", students: 120 },
-    { lcname: "LC2", students: 180 },
-    { lcname: "LC3", students: 90 },
-    { lcname: "LC4", students: 250 },
-    { lcname: "LC5", students: 300 },
-];
-
-const data = [
-    { name: 'Group 1', value: 400 },
-    { name: 'Group 2', value: 300 },
-    { name: 'Group 3', value: 300 },
-    { name: 'Group 4', value: 200 },
-    { name: 'Group 5', value: 400 },
-    { name: 'Group 6', value: 300 },
-    { name: 'Group 7', value: 300 },
-    { name: 'Group 8', value: 200 },
-    { name: 'Group 9', value: 400 },
-    { name: 'Group 10', value: 300 },
-    { name: 'Group 11', value: 300 },
-    { name: 'Group 12', value: 200 },
-    { name: 'Group 13', value: 200 },
-];
-
-const GenderColors = ["#6fa8dc", "#e8bad5"]
-//const LPCOLORS = ["#b0ce44ff", "#89c7FF", "#EC9BE1"];
-//const UPCOLORS = ["#A4CFE4", "#B0D1BC", "#A181C6", "#AF9293"]
+const GenderColors = ["#6ab2ec", "#f56e9d"]
+const EnrolledStatusColors = ["#92d1d1", "#f7f097"]
 const LPCOLORS = ["#AED581", "#81D4FA", "#F8BBD0"];
 const UPCOLORS = ["#8b9a3e", "#ae928d", "#C86464", "#AAB4C8"];
 const GradeColors = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#abd9ce"]
 const KCStuColors =["#f08621", "#e36888", "#b4b534", "#6698cc", "#bfdff3", "#ff9b28", "#ccd537", "#f055a5", "#fabe37", "#7a88fe", "#ff4040", "#ecade7ff", "#7fe0dcff"]
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-
+const PWDStudentColors = ["#6698cc","#e36888"]
 const StatCard = ({ title, value, icon }) => (
     <Card elevation={2} sx={{ borderRadius: 2 }}>
         <CardContent sx={{ display: "flex", alignItems: "center" }}>
@@ -131,6 +88,11 @@ const StatCard1 = ({ title, value, subtitle, icon }) => (
   </Card>
 );
 
+const filterOptions = createFilterOptions({
+    matchFrom: 'any',
+    stringify: option => `${option.acaYr}`
+});
+
 const renderCustomizedLabel = (labelColor = "black") => {
     return ({
         cx,
@@ -158,14 +120,14 @@ const renderCustomizedLabel = (labelColor = "black") => {
 
             return (
                 <text
-                x={x}
-                y={y}
-                fill={labelColor}
-                textAnchor={x > ncx ? "start" : "end"}
-                dominantBaseline="central"
-                fontSize={13}
+                    x={x}
+                    y={y}
+                    fill={labelColor}
+                    textAnchor={x > ncx ? "start" : "end"}
+                    dominantBaseline="central"
+                    fontSize={13}
                 >
-                {`${((percent ?? 1) * 100).toFixed(0)}%`}  {/*  {`${name}: ${((percent ?? 1) * 100).toFixed(0)}%`} */}
+                    {`${((percent ?? 1) * 100).toFixed(0)}%`}  {/*  {`${name}: ${((percent ?? 1) * 100).toFixed(0)}%`} */}
                 </text>
             );
         };
@@ -173,25 +135,54 @@ const renderCustomizedLabel = (labelColor = "black") => {
 
 export default function Dashboard() {
     const theme = useTheme();
-    const { data: stuCountbyGender } = useQuery(["stuCountbyGender"], fetchStuCountbyGender);
-    const { data: stuCountbyGrade } = useQuery(["stuCountbyGrade"], fetchStuCountbyGrade);
-    const { data: kcStuCountbyLC } = useQuery(["kcStuCountbyLC"], fetchKCStuCountbyLC);
-    const { data: totalCount = {}, isLoading } = useQuery(["totalCount"], fetchTotalCount);
-    const { data: resultCountofFirstSessionLP= {} } = useQuery(["resultCountofFirstSessionLP"], fetchGradingCountforLPforFirstSession);
-    const { data: resultCountofSecondSessionLP= {} } = useQuery(["resultCountofSecondSessionLP"], fetchGradingCountforLPforSecondSession);
-    const { data: resultCountofFirstSessionUP= {} } = useQuery(["resultCountofFirstSessionUP"], fetchGradingCountforUPforFirstSession);
-    const { data: resultCountofSecondSessionUP= {} } = useQuery(["resultCountofSecondSessionUP"], fetchGradingCountforUPforSecondSession);
+    const queryClient = useQueryClient();
+    const [acayr, setAcaYr] = useState("");
+    const [selectedAcaYr, setSelectedAcaYr] = useState(null);
+    const { data: stuCountbyGender } = useQuery(["stuCountbyGender", acayr], () => fetchStuCountbyGender(acayr), { enabled: !!acayr });
+    const { data: stuCountbyEnrollStatus } = useQuery(["stuCountbyEnrollStatus", acayr], fetchStudentbyEnrollStatus, { enabled: !!acayr });
+    const { data: pwdStudentData} = useQuery(["pwdStudentData", acayr], fetchPWDStuCountbyGender, {enabled: !!acayr});
+    const { data: stuCountbyGrade } = useQuery(["stuCountbyGrade", acayr], fetchStuCountbyGrade, { enabled: !!acayr });
+    const { data: kcStuCountbyLC } = useQuery(["kcStuCountbyLC", acayr], fetchKCStuCountbyLC, { enabled: !!acayr });
+    const { data: totalCount = {} } = useQuery(["totalCount", acayr], fetchTotalCount, { enabled: !!acayr });
+    const { data: resultCountofFirstSessionLP= {} } = useQuery(["resultCountofFirstSessionLP", acayr], fetchGradingCountforLPforFirstSession, { enabled: !!acayr });
+    const { data: resultCountofSecondSessionLP= {} } = useQuery(["resultCountofSecondSessionLP", acayr], fetchGradingCountforLPforSecondSession, { enabled: !!acayr });
+    const { data: resultCountofFirstSessionUP= {} } = useQuery(["resultCountofFirstSessionUP", acayr], fetchGradingCountforUPforFirstSession, { enabled: !!acayr });
+    const { data: resultCountofSecondSessionUP= {} } = useQuery(["resultCountofSecondSessionUP", acayr], fetchGradingCountforUPforSecondSession, { enabled: !!acayr });
     //const { data: totalStuCount } = useQuery(["totalStuCount"], fetchTotalStuCount);
 
-    const genderPieData = stuCountbyGender ? [
+    const { data: acayrs} = useQuery(
+        ["academicyear"],                 // query key
+        () => fetchAllAcaYrs()            // query function
+    );
+
+    const enrollStatusData = stuCountbyEnrollStatus ? [
+      { name: "Old", count: stuCountbyEnrollStatus.old_count },
+      { name: "New", count: stuCountbyEnrollStatus.new_count }
+    ] : [];
+
+    const genderCountData = stuCountbyGender ? [
       { name: "Male", count: stuCountbyGender.male },
       { name: "Female", count: stuCountbyGender.female }
     ] : [];
 
-    const stuCountbyLCsPieData = stuCountbyGender ? [
-      { name: "Male", count: stuCountbyGender.male },
-      { name: "Female", count: stuCountbyGender.female }
+    const stuPWDCountData = pwdStudentData ? [
+        { name: "BWD", count: pwdStudentData.pwd_boy_count },
+        { name: "GWD", count: pwdStudentData.pwd_girl_count }
     ] : [];
+    
+
+    const examDataforLowerPrimary = [
+        { name: "A", value: 100 },
+        { name: "E", value: 820 },
+        { name: "S", value: 120 }
+    ];
+
+    const examDataforUpperPrimary = [
+        { name: "A", value: 100 },
+        { name: "B", value: 820 },
+        { name: "C", value: 120 },
+        { name: "D", value: 120 }
+    ];
 
     const FirstSessionLPPieData = resultCountofFirstSessionLP ? [
       { name: "A", count: resultCountofFirstSessionLP.countA },
@@ -219,12 +210,64 @@ export default function Dashboard() {
       { name: "D", count: resultCountofSecondSessionUP.countD }
     ] : [];
 
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+
+        switch (name) {            
+            case 'acayr':
+                //setSelectedAcaYr(value);
+                setAcaYr(value);
+                break;
+            default:
+                break;
+        }
+    };
+
+    useEffect(() => {
+        queryClient.invalidateQueries();
+    }, [selectedAcaYr]);
+
     return (
         <Container sx={{ mt: 20 }}>
             <Box sx={{ p: 3, minHeight: "100vh" }}>
                 {/*<Typography variant="h5" fontWeight={600} mb={3}>
                     Dashboard
                 </Typography>*/}
+
+                <Box sx={{ width:215, height: 75, mb: 2, backgroundColor: "banner", pb: 2,       // padding bottom
+                        borderRadius: 2, borderBottom: "1px solid #e0e0e0",
+                    }}>
+
+                    {/*<Autocomplete                        
+                        options={acayrs || []}
+                        value={selectedAcaYr}   // add this line
+                        getOptionLabel={(option) => option.acaYr}
+                        filterOptions={filterOptions}
+                        onChange={(event, value) => setSelectedAcaYr(value)}   
+                        renderInput={(params) => (
+                            <TextField {...params} label="Academic Year" variant="outlined" sx={{width:200, m:1}} />
+                        )}
+                    />*/}
+                    
+                    <FormControl color="secondary" sx={{m:1}}>
+                        <InputLabel id="LabelAcaYr">Academic Year</InputLabel>
+                        <Select 
+                            name="acayr"
+                            labelId="LabelAcaYr" 
+                            id="formAcaYr"
+                            label="Academic Year"
+                            value={acayr}                                    
+                            onChange={handleChange}
+                            color="secondary" focused       
+                            sx ={{width:200}}
+                        >
+                            <MenuItem value={""}></MenuItem>
+                            <MenuItem value={"2024 - 2025"}>2024 - 2025</MenuItem>
+                            <MenuItem value={"2025 - 2026"}>2025 - 2026</MenuItem>  
+                            <MenuItem value={"2026 - 2027"}>2026 - 2027</MenuItem>                               
+                        </Select>
+                    </FormControl>
+                </Box>
 
                 {/* ===== Stats Row ===== */}
                 <Grid container spacing={2} mb={3}>
@@ -342,6 +385,95 @@ export default function Dashboard() {
                         </Card>
                     </Grid> 
                 </Grid>*/}
+
+                <Grid container spacing={2} mb={3}>
+                    <Grid item xs={12} md={4}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '353px' }}>
+                            <CardContent>
+                                <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                                    Student Count by Gender in All Learning Center
+                                </Typography>
+                                <ResponsiveContainer width="100%" height={240}>
+                                    <PieChart>
+                                        <Tooltip />
+                                        <Legend verticalAlign="bottom" />
+                                        <Pie
+                                            data={genderCountData}
+                                            innerRadius={50}
+                                            outerRadius={90}
+                                            dataKey="count"    
+                                            nameKey="name"     
+                                            label={renderCustomizedLabel("black")}    
+                                            labelLine={false}                            
+                                        >
+                                            {genderCountData.map((entry, index) => (
+                                                <Cell key={index} fill={GenderColors[index]} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    <Grid item xs={12} md={4}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '353px' }}>
+                            <CardContent>
+                                <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                                    Student Count by Enrollment Status in All Learning Center
+                                </Typography>
+                                <ResponsiveContainer width="100%" height={240}>
+                                    <PieChart>
+                                        <Tooltip />
+                                        <Legend verticalAlign="bottom" />
+                                        <Pie
+                                            data={enrollStatusData}
+                                            innerRadius={50}
+                                            outerRadius={90}
+                                            dataKey="count"    
+                                            nameKey="name"     
+                                            label={renderCustomizedLabel("black")}    
+                                            labelLine={false}                            
+                                        >
+                                            {enrollStatusData.map((entry, index) => (
+                                                <Cell key={index} fill={EnrolledStatusColors[index]} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    <Grid item xs={12} md={4}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '353px' }}>
+                            <CardContent>
+                                <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                                    PWD Student Count by Gender in All Learning Center
+                                </Typography>
+                                <ResponsiveContainer width="100%" height={240}>
+                                    <PieChart>
+                                        <Tooltip />
+                                        <Legend verticalAlign="bottom" />
+                                        <Pie
+                                            data={stuPWDCountData}
+                                            innerRadius={50}
+                                            outerRadius={90}
+                                            dataKey="count"    
+                                            nameKey="name"     
+                                            label={renderCustomizedLabel("black")}    
+                                            labelLine={false}                            
+                                        >
+                                            {stuPWDCountData.map((entry, index) => (
+                                                <Cell key={index} fill={PWDStudentColors[index]} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
 
                 <Grid container spacing={2} mb={3}>
                     <Grid item xs={12} md={4}>

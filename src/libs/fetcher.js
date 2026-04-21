@@ -76,7 +76,22 @@ export async function fetchAllStudentsByLC(lcID){
 
 export async function fetchStudent(id){
     const token = getToken();    
-    const res = await fetch(`${api}/registration/${id}`, {
+    const res = await fetch(`${api}/registration/id/${id}`, {
+        headers:{
+            Authorization:`Bearer ${token}`,
+        },
+    });
+    if (!res.ok) {
+        const text = await res.text(); // Read text to inspect error
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
+export async function fetchStudentbyStuID(stuID){
+    const token = getToken();    
+    console.log("stuID in fetcher : ", stuID);
+    const res = await fetch(`${api}/registration/by-stuid/${stuID}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -102,9 +117,10 @@ export async function fetchStuCountbyAcaYr(){
     return res.json();
 }
 
-export async function fetchStuCountbyGrade(){
+export async function fetchStuCountbyGrade({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();    
-    const res = await fetch(`${api}/stuCountbyGrade`, {
+    const res = await fetch(`${api}/stuCountbyGrade?acayr=${encodeURIComponent(acayr)}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -144,9 +160,38 @@ export async function fetchStuCountbyGender(){
     return res.json();
 }
 
-export async function fetchTotalCount(){
+export async function fetchStudentbyEnrollStatus(){
+    const token = getToken();
+    const res = await fetch(`${api}/stuCountbyEnrollStatus`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    });
+    if(!res.ok) {
+        const text = await res.text();
+        throw new Error(`Fetch Failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
+export async function fetchPWDStuCountbyGender(){
+    const token = getToken();
+    const res = await fetch(`${api}/pwdStuCountbyGender`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    });
+    if(!res.ok) {
+        const text = await res.text();
+        throw new Error(`Fetch Failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
+export async function fetchTotalCount({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();    
-    const res = await fetch(`${api}/totalCountforDashboard`, {
+    const res = await fetch(`${api}/totalCountforDashboard?acayr=${encodeURIComponent(acayr)}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -323,6 +368,20 @@ export async function fetchAllTeachers(){
     return res.json();
 }
 
+export async function fetchTeacher(id){
+    const token = getToken();    
+    const res = await fetch(`${api}/teachers/${id}`, {
+        headers:{
+            Authorization:`Bearer ${token}`,
+        },
+    });
+    if (!res.ok) {
+        const text = await res.text(); // Read text to inspect error
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
 export async function postTeacher(data){   
     const res = await fetch(`${api}/postTeacher`, {
         method: "POST",
@@ -335,6 +394,22 @@ export async function postTeacher(data){
         return res.json();
     }
     throw new Error("Error: Check Network Log");
+}
+
+export async function updateTeacher(id, data) {
+  const token = getToken();
+  const res = await fetch(`${api}/teachers/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to update teacher: ${res.status}`);
+  }
+  return res.json();
 }
 
 export async function fetchGradingCountforLPforFirstSession(){

@@ -44,6 +44,10 @@ export default function StudentList() {
 
   const fetchFn = auth?.role === "System Admin" ? fetchAllStudents : fetchAllStudentsByLC;
 
+  const [filters, setFilters] = useState([
+          { id: 1, field: "status", value: "all" },
+  ]);
+
   const { isLoading, isError, error, data } = useQuery(
     ["students", auth?.role, auth?.learningCenterId], // query key
     () => fetchFn(auth?.learningCenterId),            // pass LC ID for restricted fetch
@@ -114,19 +118,6 @@ export default function StudentList() {
       ),
     },
   ];
-
-  /*const columnGroupingModel = [
-    {
-      groupId: 'Over18',
-      headerName: 'Over 18 Years Old',
-      children: [{field: 'over18Male'}, {field:'over18Female'}],     
-    },
-    {
-      groupId: 'Under18',
-      headerName: 'Under 18 Years Old',
-      children: [{field: 'under18Male'}, {field:'under18Female'}], 
-    }
-  ];*/
 
 const exportToExcel = (rows) => {
   if (!rows || rows.length === 0) {
@@ -276,7 +267,7 @@ const exportToExcel = (rows) => {
         }}
       >
         Student List
-      </Typography>
+      </Typography>         
 
       <Box
           sx={{
@@ -299,7 +290,7 @@ const exportToExcel = (rows) => {
               padding: "8px !important",
             },             
           }}
-      >
+      >        
         <DataGrid
             rows={paginatedRows}
             columns={columns}
