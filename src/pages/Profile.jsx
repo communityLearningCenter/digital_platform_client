@@ -43,63 +43,14 @@ export default function Profile() {
              method: "POST",
              body: formData,
              });
-        // await fetch(`${api}/upload-profile?username=${data.name}`, {
-        //     method: "POST",
-        //     body: formData,
-        //     });
+    
         /*await fetch(`${data.avatarUrl}/upload-profile?username=${data.name}`, {
             method: "POST",
             body: formData,
             });*/
     };
 
-    const handleDocumentUpload = (e) => {
-        const selectedFiles = Array.from(e.target.files);
-        if (!selectedFiles.length) return;
-
-        selectedFiles.forEach((file) => {
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("username", data.name);
-
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", `${api}/upload-file?username=${data.name}`);
-
-            setUploading(true);
-
-            xhr.upload.onprogress = (event) => {
-                if (event.lengthComputable) {
-                    const percent = Math.round((event.loaded / event.total) * 100);
-                    setUploadProgress(percent);
-                }
-            };
-
-            xhr.onload = () => {
-                setUploading(false);
-                setUploadProgress(0);
-
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.response);
-
-                    // assuming backend returns file URL
-                    setFiles((prev) => [
-                        ...prev,
-                        {
-                            name: response.name,
-                            url: response.url,
-                        },
-                    ]);
-                }
-            };
-
-            xhr.onerror = () => {
-                setUploading(false);
-                console.error("Upload failed");
-            };
-
-            xhr.send(formData);
-        });
-    };
+    
 
     if (isError) {
         return (
@@ -196,55 +147,7 @@ export default function Profile() {
                     <Typography sx={{ fontSize: "0.8em", color: "text.fade" }}>
                         {data.role}
                     </Typography>
-                </Box>    
-
-                <Box sx={{ mt: 4, width: "100%", px: 3 }}>    
-                    <Button variant="contained" component="label">
-                        Upload Documents
-                        <input
-                            type="file"
-                            hidden
-                            multiple
-                            accept=".pdf,.doc,.docx,.ppt,.pptx"
-                            onChange={handleDocumentUpload}
-                        />
-                    </Button>
-
-                    {/* Progress Bar */}
-                    {uploading && (
-                        <Box sx={{ mt: 2 }}>
-                            <LinearProgress variant="determinate" value={uploadProgress} />
-                            <Typography variant="body2">{uploadProgress}%</Typography>
-                        </Box>
-                    )}
-
-                </Box>  
-
-                <Box sx={{ mt: 3, width: "100%", px: 3 }}>
-                    <Typography variant="h6">Uploaded Files</Typography>
-
-                    <List>
-                        {files.map((file, index) => (
-                            <ListItem
-                                key={index}
-                                secondaryAction={
-                                    <Button
-                                        href={file.url}
-                                        target="_blank"
-                                        download
-                                        variant="outlined"
-                                        size="small"
-                                    >
-                                        Download
-                                    </Button>
-                                }
-                            >
-                                <ListItemText primary={file.name} />
-                            </ListItem>
-                        ))}
-                    </List>
                 </Box>
-
             </Box>
         </Container>
     );

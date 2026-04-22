@@ -136,9 +136,7 @@ export default function TeachingMaterials() {
         width: 130,
         renderCell: (params) => (
         <IconButton
-            href={params.row.url}
-            target="_blank"
-            download
+            onClick={() => handleDownload(params.row)}
             color="success"
         >
             <FileDownloadIcon />
@@ -148,14 +146,28 @@ export default function TeachingMaterials() {
     ];
 
     const handleDownload = async (file) => {
-        const res = await fetch(file.url);
-        const blob = await res.blob();
+        try {
+            const response = await fetch(file.url);
 
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.name; // ✅ correct Unicode filename
-        a.click();
+            if (!response.ok) {
+            throw new Error("Failed to download file");
+            }
+
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = file.name || "download";
+            
+            document.body.appendChild(link);
+            link.click();
+
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error("Download error:", error);
+        }
     };
 
     if (isError) {
