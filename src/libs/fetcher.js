@@ -132,9 +132,10 @@ export async function fetchStuCountbyGrade({queryKey}){
     return res.json();
 }
 
-export async function fetchKCStuCountbyLC(){
+export async function fetchKCStuCountbyLC({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();    
-    const res = await fetch(`${api}/kcStuCountbyLC`, {
+    const res = await fetch(`${api}/kcStuCountbyLC?acayr=${encodeURIComponent(acayr)}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -146,9 +147,10 @@ export async function fetchKCStuCountbyLC(){
     return res.json();
 }
 
-export async function fetchStuCountbyGender(){
-    const token = getToken();    
-    const res = await fetch(`${api}/stuCountbyGender`, {
+export async function fetchStuCountbyGender({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
+    const token = getToken();        
+    const res = await fetch(`${api}/stuCountbyGender?acayr=${encodeURIComponent(acayr)}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -160,9 +162,10 @@ export async function fetchStuCountbyGender(){
     return res.json();
 }
 
-export async function fetchStudentbyEnrollStatus(){
+export async function fetchStudentbyEnrollStatus({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();
-    const res = await fetch(`${api}/stuCountbyEnrollStatus`, {
+    const res = await fetch(`${api}/stuCountbyEnrollStatus?acayr=${encodeURIComponent(acayr)}`, {
         headers: {
             Authorization: `Bearer ${token}`,
         }
@@ -174,9 +177,10 @@ export async function fetchStudentbyEnrollStatus(){
     return res.json();
 }
 
-export async function fetchPWDStuCountbyGender(){
+export async function fetchPWDStuCountbyGender({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();
-    const res = await fetch(`${api}/pwdStuCountbyGender`, {
+    const res = await fetch(`${api}/pwdStuCountbyGender?acayr=${encodeURIComponent(acayr)}`, {
         headers: {
             Authorization: `Bearer ${token}`,
         }
@@ -412,9 +416,10 @@ export async function updateTeacher(id, data) {
   return res.json();
 }
 
-export async function fetchGradingCountforLPforFirstSession(){
+export async function fetchGradingCountforLPforFirstSession({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();    
-    const res = await fetch(`${api}/gradingCountforLPforFirstSession`, {
+    const res = await fetch(`${api}/gradingCountforLPforFirstSession?acayr=${encodeURIComponent(acayr)}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -427,9 +432,10 @@ export async function fetchGradingCountforLPforFirstSession(){
 }
 
 
-export async function fetchGradingCountforLPforSecondSession(){
+export async function fetchGradingCountforLPforSecondSession({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();    
-    const res = await fetch(`${api}/gradingCountforLPforSecondSession`, {
+    const res = await fetch(`${api}/gradingCountforLPforSecondSession?acayr=${encodeURIComponent(acayr)}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -441,9 +447,10 @@ export async function fetchGradingCountforLPforSecondSession(){
     return res.json();
 }
 
-export async function fetchGradingCountforUPforFirstSession(){
+export async function fetchGradingCountforUPforFirstSession({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();    
-    const res = await fetch(`${api}/gradingCountforUPforFirstSession`, {
+    const res = await fetch(`${api}/gradingCountforUPforFirstSession?acayr=${encodeURIComponent(acayr)}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -456,9 +463,10 @@ export async function fetchGradingCountforUPforFirstSession(){
 }
 
 
-export async function fetchGradingCountforUPforSecondSession(){
+export async function fetchGradingCountforUPforSecondSession({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();    
-    const res = await fetch(`${api}/gradingCountforUPforSecondSession`, {
+    const res = await fetch(`${api}/gradingCountforUPforSecondSession?acayr=${encodeURIComponent(acayr)}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },

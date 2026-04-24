@@ -138,7 +138,7 @@ export default function Dashboard() {
     const queryClient = useQueryClient();
     const [acayr, setAcaYr] = useState("");
     const [selectedAcaYr, setSelectedAcaYr] = useState(null);
-    const { data: stuCountbyGender } = useQuery(["stuCountbyGender", acayr], () => fetchStuCountbyGender(acayr), { enabled: !!acayr });
+    const { data: stuCountbyGender } = useQuery(["stuCountbyGender", acayr], fetchStuCountbyGender, { enabled: !!acayr });
     const { data: stuCountbyEnrollStatus } = useQuery(["stuCountbyEnrollStatus", acayr], fetchStudentbyEnrollStatus, { enabled: !!acayr });
     const { data: pwdStudentData} = useQuery(["pwdStudentData", acayr], fetchPWDStuCountbyGender, {enabled: !!acayr});
     const { data: stuCountbyGrade } = useQuery(["stuCountbyGrade", acayr], fetchStuCountbyGrade, { enabled: !!acayr });

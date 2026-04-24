@@ -26,6 +26,7 @@ import { useApp } from "../ThemedApp";
 
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const api = import.meta.env.VITE_API_URL;
 
@@ -109,41 +110,59 @@ export default function TeachingMaterials() {
         });
     };
 
-    const columns = [
-    {
-        field: "name",
-        headerName: "File Name",
-        headerClassName: "super-app-theme--header",
-        flex: 1,
-    },
-    {
-        field: "relatedTopic",
-        headerName: "Topic",
-        headerClassName: "super-app-theme--header",
-        width: 150,
-    },     
-    {
-         field: "uploadedDate",
-         headerName: "Uploaded At",
-         headerClassName: "super-app-theme--header",
-         width: 180,
-         renderCell: (params) => formatDate(params.row.uploadedDate)
-    },
-    {
-        field: "download",
-        headerName: "Download",
-        headerClassName: "super-app-theme--header",
-        width: 130,
-        renderCell: (params) => (
-        <IconButton
-            onClick={() => handleDownload(params.row)}
-            color="success"
-        >
-            <FileDownloadIcon />
-        </IconButton>
-        ),
-    },
+    const baseColumns = [
+        {
+            field: "name",
+            headerName: "File Name",
+            headerClassName: "super-app-theme--header",
+            flex: 1,
+        },
+        {
+            field: "relatedTopic",
+            headerName: "Topic",
+            headerClassName: "super-app-theme--header",
+            width: 150,
+        },     
+        {
+            field: "uploadedDate",
+            headerName: "Uploaded At",
+            headerClassName: "super-app-theme--header",
+            width: 180,
+            renderCell: (params) => formatDate(params.row.uploadedDate)
+        },
+        {
+            field: "download",
+            headerName: "Download",
+            headerClassName: "super-app-theme--header",
+            width: 130,
+            renderCell: (params) => (
+            <IconButton
+                onClick={() => handleDownload(params.row)}
+                color="success"
+            >
+                <FileDownloadIcon />
+            </IconButton>
+            ),
+        },        
     ];
+
+    const deleteColumn = {
+        field: "delete",
+        headerName: "Delete",
+        width: 120,
+        renderCell: (params) => (
+            <IconButton
+            color="error"
+            onClick={() => handleDelete(params.row)}
+            >
+            <DeleteIcon />
+            </IconButton>
+        ),
+    };
+
+    const columns = auth?.role === "System Admin"
+        ? [...baseColumns, deleteColumn]
+        : baseColumns;
 
     const handleDownload = async (file) => {
         try {
@@ -167,6 +186,28 @@ export default function TeachingMaterials() {
             window.URL.revokeObjectURL(blobUrl);
         } catch (error) {
             console.error("Download error:", error);
+        }
+    };
+
+    const handleDelete = async (file) => {
+        const confirmDelete = window.confirm(
+            `Are you sure you want to delete "${file.name}"?`
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            const res = await fetch(`${api}/files/${file.id}`, {
+            method: "DELETE",
+            });
+
+            if (!res.ok) throw new Error("Delete failed");
+
+            // refresh table
+            refetch();
+
+        } catch (err) {
+            console.error(err);
         }
     };
 

@@ -51,8 +51,10 @@ export default function Register() {
     const [grade, setGrade] = useState("");
     const [gender, setGender] = useState("");
     const [pwd, setPWD] = useState("");
+    const [pwd_type, setPWDType] = useState("");
     const [guardianName, setGuardianName] = useState("");
     const [guardianNRC, setGuardianNRC] = useState("");
+    const [guardianType, setGuardianType] = useState("");
 
     // Numbers
     const [familyMember, setFamilyMember] = useState(0);
@@ -90,6 +92,12 @@ export default function Register() {
             case 'pwd':
                 setPWD(value);
                 break;
+            case 'pwd_type':
+                setPWDType(value);
+                break;
+            case 'guardianType':
+                setGuardianType(value);
+                break;
             case 'stuStatus':
                 setStuStatus(value);
                 break;
@@ -121,8 +129,10 @@ export default function Register() {
             grade,
             gender,
             pwd,
+            pwd_type,
             guardianName,                                                                           
             guardianNRC,
+            guardianType,
             familyMember: parseInt(familyMember, 10) || 0,
             over18Male: parseInt(over18Male, 10) || 0,
             over18Female: parseInt(over18Female, 10) || 0,
@@ -148,8 +158,10 @@ export default function Register() {
         setGrade("");
         setGender("");
         setPWD("");
+        setPWDType("");
         setGuardianName("");
         setGuardianNRC("");
+        setGuardianType("");
         setFamilyMember(0);
         setOver18Male(0);
         setOver18Female(0);
@@ -185,8 +197,10 @@ export default function Register() {
             setName(data.name || "");
             setGender(data.gender || "");
             setPWD(data.pwd || "");
+            setPWDType(data.pwd_type || "");
             setGuardianName(data.guardianName || "");
             setGuardianNRC(data.guardianNRC || "");       
+            setGuardianType(data.guardianType || "");
             setFamilyMember(data.familyMember || "");
             setUnder18Male(data.under18Male || 0);   
             setUnder18Female(data.under18Female || 0);
@@ -210,8 +224,10 @@ export default function Register() {
             setGrade(student.grade || "");
             setGender(student.gender || "");
             setPWD(student.pwd || "");
+            setPWDType(student.pwd_type || "");
             setGuardianName(student.guardianName || "");
             setGuardianNRC(student.guardianNRC || "");
+            setGuardianType(student.guardianType || "");
             setFamilyMember(student.familyMember || 0);
             setOver18Male(student.over18Male || 0);
             setOver18Female(student.over18Female || 0);
@@ -259,35 +275,7 @@ export default function Register() {
                             flexDirection: "column",
                             gap: 1,
                             mt: 0.5                            
-                        }}>
-                            
-                            {/* <FormControl fullWidth color="secondary">
-                                <InputLabel id="LabelLC">Learning Center</InputLabel>
-                                <Select 
-                                    name="lcname"
-                                    labelId="LabelLC" 
-                                    id="formLC"
-                                    value={lcname}
-                                    label="Learning Center"
-                                    onChange={handleChange}                             
-                                    fullWidth
-                                    >
-                                    <MenuItem value={""}></MenuItem>
-                                    <MenuItem value={"Golden Gate"}>Golden Gate</MenuItem>
-                                    <MenuItem value={"Bright Hope"}>Bright Hope</MenuItem>
-                                    <MenuItem value={"Banner of Wisdom"}>Banner of Wisdom</MenuItem>
-                                    <MenuItem value={"Shining Star"}>Shining Star</MenuItem>
-                                    <MenuItem value={"Peace Kawchan"}>Peace Kaw Chan</MenuItem>
-                                    <MenuItem value={"Peace Della"}>Peace Della</MenuItem>
-                                    <MenuItem value={"Cannan"}>Cannan</MenuItem>
-                                    <MenuItem value={"Apyin Yay Kyaw"}>Apyin Yay Kyaw</MenuItem>
-                                    <MenuItem value={"Northern Star"}>Northern Star</MenuItem>
-                                    <MenuItem value={"Injendone"}>Injendone</MenuItem>
-                                    <MenuItem value={"Kyarrapatee"}>Kyarrapatee</MenuItem>
-                                    <MenuItem value={"Maw Phaung"}>Maw Phaung</MenuItem>
-                                    <MenuItem value={"Shwe Set"}>Shwe Set</MenuItem>
-                                </Select>
-                            </FormControl> */}
+                        }}> 
                             {/* Learning Center */}
                             <Autocomplete
                                 options={learningcenters || []}
@@ -326,7 +314,7 @@ export default function Register() {
                                     <MenuItem value={""}></MenuItem>
                                     <MenuItem value={"2024 - 2025"}>2024 - 2025</MenuItem>
                                     <MenuItem value={"2025 - 2026"}>2025 - 2026</MenuItem> 
-                                    <MenuItem value={"2025 - 2026"}>2026 - 2027</MenuItem>                               
+                                    <MenuItem value={"2026 - 2027"}>2026 - 2027</MenuItem>                               
                                 </Select>
                                 {!acayr && (
                                 <Typography variant="caption" color="error">
@@ -461,6 +449,34 @@ export default function Register() {
                             </FormControl>
                         </Box>
 
+                        {pwd === "Yes" && (
+                            <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 1,
+                                mt: 0.5,  
+                            }}>
+                                <FormControl fullWidth color="secondary">
+                                    <InputLabel id="LabelPWDType">PWD Types</InputLabel>
+                                    <Select 
+                                        name="pwd_type"
+                                        labelId="LabelPWDType" 
+                                        id="formPWDType"
+                                        value={pwd_type}
+                                        label="PWD Types"
+                                        onChange={handleChange}
+                                        color="secondary" focused       
+                                        fullWidth>
+                                        <MenuItem value={"visual"}>Visual Impairment</MenuItem>
+                                        <MenuItem value={"hearing"}>Hearing Impairment</MenuItem>
+                                        <MenuItem value={"physical"}>Physical Disability</MenuItem>    
+                                        <MenuItem value={"intellectual"}>Intellectual Disability</MenuItem>  
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                        )}
+
                         <TextField
                             label="Guardian Name"
                             value={guardianName}
@@ -488,6 +504,30 @@ export default function Register() {
                                 mt: 0.5,
                             }}
                         />
+
+                        <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1,
+                            mt: 0.5,  
+                        }}>
+                            <FormControl fullWidth color="secondary">
+                                <InputLabel id="LabelPWD">Guardian Type</InputLabel>
+                                <Select 
+                                    name="guardianType"
+                                    labelId="LabelGuardianType" 
+                                    id="formGuardianType"
+                                    value={guardianType}
+                                    label="Guardian Type"
+                                    onChange={handleChange}
+                                    color="secondary" focused       
+                                    fullWidth>
+                                    <MenuItem value={"relative"}>Relative</MenuItem>
+                                    <MenuItem value={"parents"}>Parent</MenuItem>                                    
+                                </Select>
+                            </FormControl>
+                        </Box>
 
                         <TextField
                             label="No. of Family Member"
