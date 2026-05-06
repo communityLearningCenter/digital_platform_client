@@ -149,6 +149,7 @@ export default function TeachingMaterials() {
     const deleteColumn = {
         field: "delete",
         headerName: "Delete",
+        headerClassName: "super-app-theme--header",
         width: 120,
         renderCell: (params) => (
             <IconButton

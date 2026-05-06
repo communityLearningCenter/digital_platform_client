@@ -95,11 +95,11 @@ export default function Register() {
 
                         {/* Show Learning Center only if role = Volunteer Teacher */}
                         {role === "Volunteer Teacher" && (
-                            <Autocomplete
+                            <Autocomplete                           
                                 options={learningCenters || []}
                                 getOptionLabel={(option) => option.lcname}
-                                onChange={(e, value) => setSelectedLC(value)}
-                                renderInput={(params) => <TextField {...params} label="Learning Center" variant="outlined" />}
+                                onChange={(e, value) => setSelectedLC(value)}                                
+                                renderInput={(params) => <TextField {...params} label="Learning Center" variant="outlined" sx={{width:470}} />}
                             />
                         )}
 

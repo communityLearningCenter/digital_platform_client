@@ -49,7 +49,7 @@ export default function Header() {
                     {/* <Link href="#" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>About</Link>
                     <Link href="#" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>Contact</Link> */}
                     {/* Show Sign Up if the User is Un-Registered*/}
-                    {role === "Guest" && (
+                    {role === "System Admin" && (
                         <Link component={RouterLink} to="/register" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>Sign Up</Link>
                     )}
                     {/* Conditionally show Login / Logout */}
