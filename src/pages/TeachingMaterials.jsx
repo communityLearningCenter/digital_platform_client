@@ -167,7 +167,8 @@ export default function TeachingMaterials() {
 
     const handleDownload = async (file) => {
         try {
-            const response = await fetch(file.url);
+            //const response = await fetch(file.url);
+            const response = await fetch(`${api}/download/${file.id}`)
 
             if (!response.ok) {
             throw new Error("Failed to download file");

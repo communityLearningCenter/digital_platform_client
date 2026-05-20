@@ -76,6 +76,7 @@ export async function fetchAllStudentsByLC(lcID){
 
 export async function fetchStudent(id){
     const token = getToken();    
+    console.log("id in fetcher : ", id)
     const res = await fetch(`${api}/registration/id/${id}`, {
         headers:{
             Authorization:`Bearer ${token}`,
