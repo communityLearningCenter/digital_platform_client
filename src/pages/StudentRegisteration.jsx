@@ -336,6 +336,11 @@ export default function Register() {
                                     findStudentByStuID.mutate(stuID);
                                 }
                             }}
+                            onBlur={() => {
+                                if (stuID) {
+                                    findStudentByStuID.mutate(stuID);
+                                }
+                            }}
                             fullWidth
                             color="secondary"
                             sx={{
