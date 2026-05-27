@@ -330,7 +330,7 @@ export default function Register() {
                             label="Student ID"
                             value={stuID}
                             onChange={(e) => setStuID(e.target.value)}
-                            onKeyDown={(e) => {
+                            onKeyUp={(e) => {
                                 if (e.key === "Enter" && stuID) {
                                     e.preventDefault();
                                     findStudentByStuID.mutate(stuID);
