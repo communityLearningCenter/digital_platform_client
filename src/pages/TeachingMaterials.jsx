@@ -13,6 +13,10 @@ import {
     IconButton,
     LinearProgress,
     Fab,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
@@ -37,6 +41,9 @@ export default function TeachingMaterials() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploading, setUploading] = useState(false);
+    const [openUploadDialog, setOpenUploadDialog] = useState(false);
+    const [topic, setTopic] = useState("");
+    const [module, setModule] = useState("");
     const fileInputRef = useRef(null);
     const { auth } = useApp();
     console.log("role: ", auth);
@@ -50,6 +57,19 @@ export default function TeachingMaterials() {
             return res.json();
         }
     );
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+
+        switch (name) {            
+            case 'topic':
+                setTopic(value);
+                break;
+            case 'module':
+                setModule(value);
+                break;
+            }
+    };
 
     const formatDate = (value) => {
         if (!value) return "";
@@ -78,6 +98,8 @@ export default function TeachingMaterials() {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("username", data.name);
+            formData.append("relatedTopic", topic);
+            formData.append("module", module);
 
             const xhr = new XMLHttpRequest();
             xhr.open("POST", `${api}/upload-file?username=${data.name}`);
@@ -97,7 +119,8 @@ export default function TeachingMaterials() {
                 setUploadProgress(0);
 
                 if (xhr.status === 200) {                    
-                    refetch();                   
+                    refetch();     
+                    setOpenUploadDialog(false);              
                 }
             };
 
@@ -122,7 +145,13 @@ export default function TeachingMaterials() {
             headerName: "Topic",
             headerClassName: "super-app-theme--header",
             width: 150,
-        },     
+        },  
+        {
+            field: "module",
+            headerName: "Module",
+            headerClassName: "super-app-theme--header",
+            width: 150,
+        },    
         {
             field: "uploadedDate",
             headerName: "Uploaded At",
@@ -211,6 +240,14 @@ export default function TeachingMaterials() {
         } catch (err) {
             console.error(err);
         }
+    };    
+
+    const handleOpenUploadDialog = () => {
+        setOpenUploadDialog(true);
+    };
+
+    const handleCloseUploadDialog = () => {
+        setOpenUploadDialog(false);
     };
 
     if (isError) {
@@ -325,24 +362,131 @@ export default function TeachingMaterials() {
                     </Button> */}
             </Box> 
 
-            <input
-                ref={fileInputRef}
-                type="file"
-                hidden
-                multiple
-                accept=".pdf,.doc,.docx,.ppt,.pptx"
-                onChange={handleDocumentUpload}
-            /> 
-
             {auth?.role === "System Admin" && (
                 <Fab
                     color="primary"
                     sx={{ position: "fixed", bottom: 32, right: 32 }}
-                    onClick={() => fileInputRef.current.click()}
-                    >
+                    onClick={handleOpenUploadDialog}
+                >
                     <UploadFileIcon />
                 </Fab>
             )}
 
+            <Dialog
+                open={openUploadDialog}
+                onClose={handleCloseUploadDialog}
+                maxWidth="md"
+                fullWidth
+            >
+                <DialogTitle
+                    sx={{
+                        color: "#ef6c00",
+                        fontWeight: "bold",
+                    }}
+                >
+                    Upload Teaching Materials
+                </DialogTitle>
+
+                <DialogContent>
+
+                    {error && (
+                        <Alert severity="warning" sx={{ mb: 2 }}>
+                            {error}
+                        </Alert>
+                    )}
+
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                            mt: 1,
+                        }}
+                    >
+                        <FormControl fullWidth>
+                            <InputLabel>Topic</InputLabel>
+                            <Select
+                                name="topic"
+                                value={topic}
+                                label="Topic"
+                                onChange={handleChange}
+                            >
+                                <MenuItem value=""></MenuItem>
+                                <MenuItem value="Kids' Club">Kids' Club</MenuItem>
+                                <MenuItem value="Summer Camp">Summer Camp</MenuItem>
+                            </Select>
+                            {!topic && (
+                                <Typography variant="caption" color="error">
+                                    Please Choose Topic
+                                </Typography>  
+                            )} 
+                        </FormControl>
+
+                        <FormControl fullWidth>
+                            <InputLabel>Module</InputLabel>
+                            <Select
+                                name="module"
+                                value={module}
+                                label="Module"
+                                required
+                                error={!module}
+                                onChange={handleChange}
+                            >
+                                <MenuItem value=""></MenuItem>
+                                <MenuItem value="Digital">Digital</MenuItem>
+                                <MenuItem value="PWD">PWD</MenuItem>
+                                <MenuItem value="Safeguarding">Safeguarding</MenuItem>
+                                <MenuItem value="PSS">PSS</MenuItem>
+                                <MenuItem value="Peace">Peace</MenuItem>
+                            </Select>
+                            {!module && (
+                                <Typography variant="caption" color="error">
+                                    Please Choose Module
+                                </Typography>  
+                            )}
+                        </FormControl>
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            hidden
+                            multiple
+                            accept=".pdf,.doc,.docx,.ppt,.pptx"
+                            onChange={handleDocumentUpload}
+                        />
+
+                        <Button
+                            variant="contained"
+                            sx={{
+                                backgroundColor: "#ef6c00",
+                                width: 150
+                            }}
+                            onClick={() => fileInputRef.current.click()}
+                        >
+                            Choose File
+                        </Button>
+
+                        {uploading && (
+                            <>
+                                <Typography variant="body2">
+                                    Uploading... {uploadProgress}%
+                                </Typography>
+
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={uploadProgress}
+                                />
+                            </>
+                        )}
+                    </Box>
+
+                </DialogContent>
+
+                <DialogActions>
+                    <Button onClick={handleCloseUploadDialog}>
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
 )}
