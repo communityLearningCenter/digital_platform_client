@@ -749,13 +749,13 @@ export default function Register() {
                             mt: 0.5, 
                         }}>
                             <FormControl fullWidth color="secondary">
-                                <InputLabel id="LabelKidClubStu">Kid's Club Student</InputLabel>
+                                <InputLabel id="LabelKidClubStu">{t("stuReg.kidsclubStudent")}</InputLabel>
                                 <Select 
                                     name="kidsClubStu"
                                     labelId="LabelKidsClubStu" 
                                     id="formKidsClubStu"
                                     value={kidsClubStu}
-                                    label="Kid's Club Student"
+                                    label={t("stuReg.kidsclubStudent")}
                                     onChange={handleChange}
                                     required
                                     error={!kidsClubStu}
@@ -767,7 +767,7 @@ export default function Register() {
                                 </Select>
                                 {!kidsClubStu && (
                                 <Typography variant="caption" color="error">
-                                    {t("stuReg.academicReviewRequiredText")}
+                                    {t("stuReg.kidsclubStuRequiredText")}
                                 </Typography>    
                             )} 
                             </FormControl>
@@ -781,13 +781,13 @@ export default function Register() {
                             mt: 0.5, 
                         }}>
                             <FormControl fullWidth color="secondary">
-                                <InputLabel id="LabelKidClubStu">Dropout Student</InputLabel>
+                                <InputLabel id="LabelKidClubStu">{t("stuReg.dropoutStudent")}</InputLabel>
                                 <Select 
                                     name="dropoutStu"
                                     labelId="LabelDropoutStu" 
                                     id="formDropoutStu"
                                     value={dropoutStu}
-                                    label="Drop Out Student"
+                                    label={t("stuReg.dropoutStudent")}
                                     onChange={handleChange}
                                     required
                                     error={!dropoutStu}
