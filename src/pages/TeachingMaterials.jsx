@@ -438,7 +438,7 @@ export default function TeachingMaterials() {
                                 <MenuItem value="Safeguarding">Safeguarding</MenuItem>
                                 <MenuItem value="PSS">PSS</MenuItem>
                                 <MenuItem value="Peace">Peace</MenuItem>
-                                <MenuItem value="Peace">Teaching Guide</MenuItem>
+                                <MenuItem value="Teaching Guide">Teaching Guide</MenuItem>
                             </Select>
                             {!module && (
                                 <Typography variant="caption" color="error">
