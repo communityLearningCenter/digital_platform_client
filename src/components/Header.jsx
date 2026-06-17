@@ -1,5 +1,6 @@
 import {useApp} from "../ThemedApp";
 import { Link as RouterLink } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 
 import {
     Box,
@@ -7,7 +8,9 @@ import {
     Toolbar,
     IconButton,
     Link,
-    Typography
+    Typography,
+    Select,
+    MenuItem
 } from "@mui/material";
 
 import {    
@@ -17,6 +20,14 @@ import {
 export default function Header() {
     const {auth, showDrawer, setShowDrawer} = useApp();    
     const role = auth ? auth.role : "Guest";
+    const { t, i18n } = useTranslation();
+
+    const handleLanguageChange = (event) => {
+    const lang = event.target.value;
+
+    i18n.changeLanguage(lang);
+    localStorage.setItem("language", lang);
+};
 
     return(
         // <AppBar position="static" sx={{ height: 120 }}>
@@ -44,27 +55,43 @@ export default function Header() {
                 </Box>
 
                 {/* Right: Nav Links */}
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Link component={RouterLink} to="/" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>Home</Link>
+                <Box sx={{ display: "flex", alignItems: "center", ml: "auto" }}>
+                    <Link component={RouterLink} to="/" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>{t("header.home")}</Link>
                     {/* <Link href="#" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>About</Link>
                     <Link href="#" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>Contact</Link> */}
                     {/* Show Sign Up if the User is Un-Registered*/}
                     {role === "System Admin" && (
-                        <Link component={RouterLink} to="/register" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>Sign Up</Link>
+                        <Link component={RouterLink} to="/register" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>{t("header.signup")}</Link>
                     )}
                     {/* Conditionally show Login / Logout */}
                     {!auth ? (
-                        <Link component={RouterLink} to="/" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>Login</Link>
+                        <Link component={RouterLink} to="/" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }}>{t("header.login")}</Link>
                     ) : (
                         <Link component={RouterLink} to="/" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }} 
-                        onClick={() => {
-                            localStorage.removeItem("token");
-                            setAuth(null);
-                            navigate("/");
-                        }}>
-                            Logout</Link>
+                            onClick={() => {
+                                localStorage.removeItem("token");
+                                setAuth(null);
+                                navigate("/");
+                            }}>
+                            {t("header.logout")}
+                        </Link>
                     )}
+                    <Select
+                        value={i18n.language}
+                        onChange={handleLanguageChange}
+                        size="small"
+                        sx={{
+                            color: "#ef6c00",
+                            ml: 2,
+                            minWidth: 100,
+                            fontSize: 20
+                        }}
+                        >
+                        <MenuItem value="en">English</MenuItem>
+                        <MenuItem value="mm">မြန်မာ</MenuItem>
+                    </Select>
                 </Box>
+                
             </Toolbar>
         </AppBar>
     )

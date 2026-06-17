@@ -16,6 +16,7 @@ import { useMutation, useQuery } from "react-query";
 import { fetchLCsbyUser, postStudent, fetchStudent, fetchStudentbyStuID, updateStudent } from "../libs/fetcher";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../ThemedApp";
+import { useTranslation } from "react-i18next";
 
 import { createFilterOptions } from "@mui/material/Autocomplete";
 const filterOptions = createFilterOptions({
@@ -41,6 +42,8 @@ export default function Register() {
         () => fetchStudent(id),
         { enabled: isEdit }
     );
+
+    const { t } = useTranslation();
     
     // Dropdowns
     const [selectedLC, setSelectedLC] = useState(null);
@@ -244,8 +247,8 @@ export default function Register() {
 
     return (
         <Container sx={{ mt: 20, width:700}}>
-            <Typography variant="h4" sx={{ p:2, mt: 4, color: '#ef6c00', backgroundColor: 'banner', borderRadius: 5, height: 90, width: 365  }}>
-                Student Registration
+            <Typography variant="h4" sx={{ p:2, mt: 4, color: '#ef6c00', backgroundColor: 'banner', borderRadius: 5, height: 90, width: 420  }}>
+                {t("stuReg.stuRegistration")}
             </Typography>
             <Box sx={{mt:-6,backgroundColor:'banner', borderRadius: 5,}}>            
                 {error && (
@@ -286,7 +289,7 @@ export default function Register() {
                                 filterOptions={filterOptions}
                                 onChange={(event, value) => setSelectedLC(value)}
                                 renderInput={(params) => (
-                                    <TextField {...params} label="Learning Center" variant="outlined" fullWidth />
+                                    <TextField {...params} label={t("stuReg.lcname")} variant="outlined" fullWidth />
                                 )}
                             />
                             
@@ -301,7 +304,7 @@ export default function Register() {
                         }}>
                             
                             <FormControl fullWidth color="secondary">
-                                <InputLabel id="LabelAcaYr">Academic Year</InputLabel>
+                                <InputLabel id="LabelAcaYr">{t("stuReg.academicyr")}</InputLabel>
                                 <Select 
                                     name="acayr"
                                     labelId="LabelAcaYr" 
@@ -320,14 +323,14 @@ export default function Register() {
                                 </Select>
                                 {!acayr && (
                                 <Typography variant="caption" color="error">
-                                    Academic Year is required
+                                    {t("stuReg.academicyrRequiredText")}
                                 </Typography>                              
                             )}
                             </FormControl>
                         </Box>    
 
                         <TextField
-                            label="Student ID"
+                            label={t("stuReg.stuID")}
                             value={stuID}
                             onChange={(e) => setStuID(e.target.value)}
                             onKeyUp={(e) => {
@@ -352,7 +355,7 @@ export default function Register() {
                         />                
 
                         <TextField
-                            label="Student Name"
+                            label={t("stuReg.stuName")}
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             fullWidth
@@ -373,7 +376,7 @@ export default function Register() {
                             mt: 0.5,                        
                         }}>
                             <FormControl fullWidth color="secondary">
-                                <InputLabel id="LabelGrade">Grade</InputLabel>
+                                <InputLabel id="LabelGrade">{t("stuReg.grade")}</InputLabel>
                                 <Select 
                                     name="grade"
                                     labelId="LabelGrade" 
@@ -396,11 +399,13 @@ export default function Register() {
                                     <MenuItem value={"G-7"}>G-7</MenuItem>
                                     <MenuItem value={"G-8"}>G-8</MenuItem>
                                     <MenuItem value={"G-9"}>G-9</MenuItem>
-                                    <MenuItem value={"G-10"}>G-10</MenuItem>                                
+                                    <MenuItem value={"G-10"}>G-10</MenuItem> 
+                                    <MenuItem value={"G-10"}>G-11</MenuItem> 
+                                    <MenuItem value={"G-10"}>G-12</MenuItem>                                
                                 </Select>
                                 {!grade && (
                                 <Typography variant="caption" color="error">
-                                    Grade is required
+                                    {t("stuReg.gradeRequiredText")}
                                 </Typography>
                             )}
                             </FormControl>
@@ -415,7 +420,7 @@ export default function Register() {
                         }}>
                             <FormControl fullWidth color="secondary">
                                 <InputLabel id="LabelGender"
-                                    >Gender</InputLabel>
+                                    >{t("stuReg.gender")}</InputLabel>
                                 <Select 
                                     name="gender"
                                     labelId="LabelGender" 
@@ -439,7 +444,7 @@ export default function Register() {
                             mt: 0.5,  
                         }}>
                             <FormControl fullWidth color="secondary">
-                                <InputLabel id="LabelPWD">PWD</InputLabel>
+                                <InputLabel id="LabelPWD">{t("stuReg.pwd")}</InputLabel>
                                 <Select 
                                     name="pwd"
                                     labelId="LabelPWD" 
@@ -465,7 +470,7 @@ export default function Register() {
                                 mt: 0.5,  
                             }}>
                                 <FormControl fullWidth color="secondary">
-                                    <InputLabel id="LabelPWDType">PWD Types</InputLabel>
+                                    <InputLabel id="LabelPWDType">{t("stuReg.pwdtypes")}</InputLabel>
                                     <Select 
                                         name="pwd_type"
                                         labelId="LabelPWDType" 
@@ -485,7 +490,7 @@ export default function Register() {
                         )}
 
                         <TextField
-                            label="Guardian Name"
+                            label={t("stuReg.guardianName")}
                             value={guardianName}
                             onChange={(e) => setGuardianName(e.target.value)}
                             fullWidth
@@ -499,7 +504,7 @@ export default function Register() {
                         />
 
                         <TextField
-                            label="Guardian NRC"
+                            label={t("stuReg.guardianNRC")}
                             value={guardianNRC}
                             onChange={(e) => setGuardianNRC(e.target.value)}
                             fullWidth
@@ -520,7 +525,7 @@ export default function Register() {
                             mt: 0.5,  
                         }}>
                             <FormControl fullWidth color="secondary">
-                                <InputLabel id="LabelPWD">Guardian Type</InputLabel>
+                                <InputLabel id="LabelPWD">{t("stuReg.guardianType")}</InputLabel>
                                 <Select 
                                     name="guardianType"
                                     labelId="LabelGuardianType" 
@@ -530,14 +535,14 @@ export default function Register() {
                                     onChange={handleChange}
                                     color="secondary" focused       
                                     fullWidth>
-                                    <MenuItem value={"relative"}>Relative</MenuItem>
-                                    <MenuItem value={"parents"}>Parent</MenuItem>                                    
+                                    <MenuItem value={"relative"}>{t("stuReg.relative")}</MenuItem>
+                                    <MenuItem value={"parents"}>{t("stuReg.parent")}</MenuItem>                                    
                                 </Select>
                             </FormControl>
                         </Box>
 
                         <TextField
-                            label="No. of Family Member"
+                            label={t("stuReg.familymemeberCount")}
                             type="number"
                             value={familyMember}
                             onChange={(e) => setFamilyMember(Number(e.target.value) || 0)}
@@ -561,12 +566,12 @@ export default function Register() {
                             }}
                             >
                             <legend style={{ fontSize: '1rem', padding: '0 8px', color:'#636363'}}>
-                                No. of Under 18 Years Old
+                                {t("stuReg.under18Count")}
                             </legend>
 
                             <Box sx={{ display: 'flex', gap: 2 }}>
                                 <TextField
-                                    label="Male"
+                                    label={t("stuReg.under18MaleCount")}
                                     type="number"
                                     value={under18Male}
                                     onChange={(e) => setUnder18Male(Number(e.target.value) || 0)}
@@ -582,7 +587,7 @@ export default function Register() {
                                 />
 
                                 <TextField
-                                    label="Female"
+                                    label={t("stuReg.under18FemaleCount")}
                                     type="number"
                                     value={under18Female}
                                     onChange={(e) => setUnder18Female(Number(e.target.value) || 0)}
@@ -609,12 +614,12 @@ export default function Register() {
                             }}
                             >
                             <legend style={{ fontSize: '1rem', padding: '0 8px', color:'#636363'}}>
-                                No. of Over 18 Years Old
+                                {t("stuReg.over18Count")}
                             </legend>
 
                             <Box sx={{ display: 'flex', gap: 2 }}>
                                 <TextField
-                                    label="Male"
+                                    label={t("stuReg.over18MaleCount")}
                                     type="number"
                                     value={over18Male}
                                     onChange={(e) => setOver18Male(Number(e.target.value) || 0)}
@@ -630,7 +635,7 @@ export default function Register() {
                                 />
 
                                 <TextField
-                                    label="Female"
+                                    label={t("stuReg.over18FemaleCount")}
                                     type="number"
                                     value={over18Female}
                                     onChange={(e) => setOver18Female(Number(e.target.value) || 0)}
@@ -656,7 +661,7 @@ export default function Register() {
                             mt: 0.5,  
                         }}>
                             <FormControl fullWidth color="secondary">
-                                <InputLabel id="LabelStuStatus">Student Status</InputLabel>
+                                <InputLabel id="LabelStuStatus">{t("stuReg.studentStatus")}</InputLabel>
                                 <Select 
                                     name="stuStatus"
                                     labelId="LabelStuStatus" 
@@ -669,12 +674,12 @@ export default function Register() {
                                     color="secondary"       
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
-                                    <MenuItem value={"Old"}>Old</MenuItem>
-                                    <MenuItem value={"New"}>New</MenuItem>                                                             
+                                    <MenuItem value={"Old"}>{t("stuReg.oldStu")}</MenuItem>
+                                    <MenuItem value={"New"}>{t("stuReg.newStu")}</MenuItem>                                                             
                                 </Select>
                                 {!stuStatus && (
                                 <Typography variant="caption" color="error">
-                                    Student Status is required
+                                    {t("stuReg.studentStatusRequiredText")}
                                 </Typography>    
                             )} 
                             </FormControl>
@@ -688,7 +693,7 @@ export default function Register() {
                             mt: 0.5,  
                         }}>
                             <FormControl fullWidth color="secondary">
-                                <InputLabel id="LabelAcaReview">Academic Review</InputLabel>
+                                <InputLabel id="LabelAcaReview">{t("stuReg.academicReview")}</InputLabel>
                                 <Select 
                                     name="acaReview"
                                     labelId="LabelAcaReview" 
@@ -701,32 +706,36 @@ export default function Register() {
                                     color="secondary"       
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
-                                    <MenuItem value={"KG Passed"}>KG Passed</MenuItem>
-                                    <MenuItem value={"KG Failed"}>KG Failed</MenuItem>       
-                                    <MenuItem value={"G1 Passed"}>G1 Passed</MenuItem>
-                                    <MenuItem value={"G1 Failed"}>G1 Failed</MenuItem>  
-                                    <MenuItem value={"G2 Passed"}>G2 Passed</MenuItem>
-                                    <MenuItem value={"G2 Failed"}>G2 Failed</MenuItem>        
-                                    <MenuItem value={"G3 Passed"}>G3 Passed</MenuItem>
-                                    <MenuItem value={"G3 Failed"}>G3 Failed</MenuItem>    
-                                    <MenuItem value={"G4 Passed"}>G4 Passed</MenuItem>
-                                    <MenuItem value={"G4 Failed"}>G4 Failed</MenuItem>      
-                                    <MenuItem value={"G5 Passed"}>G5 Passed</MenuItem>
-                                    <MenuItem value={"G5 Failed"}>G5 Failed</MenuItem>          
-                                    <MenuItem value={"G6 Passed"}>G6 Passed</MenuItem>
-                                    <MenuItem value={"G6 Failed"}>G6 Failed</MenuItem>  
-                                    <MenuItem value={"G7 Passed"}>G7 Passed</MenuItem>
-                                    <MenuItem value={"G7 Failed"}>G7 Failed</MenuItem>    
-                                    <MenuItem value={"G8 Passed"}>G8 Passed</MenuItem>
-                                    <MenuItem value={"G8 Failed"}>G8 Failed</MenuItem>      
-                                    <MenuItem value={"G9 Passed"}>G9 Passed</MenuItem>
-                                    <MenuItem value={"G9 Failed"}>G9 Failed</MenuItem> 
-                                    <MenuItem value={"G10 Passed"}>G10 Passed</MenuItem>
-                                    <MenuItem value={"G10 Failed"}>G10 Failed</MenuItem>                        
-                                </Select>
+                                    <MenuItem value={"KG Passed"}>{t("stuReg.kgPass")}</MenuItem>
+                                    <MenuItem value={"KG Failed"}>{t("stuReg.kgFail")}</MenuItem>       
+                                    <MenuItem value={"G1 Passed"}>{t("stuReg.g1Pass")}</MenuItem>
+                                    <MenuItem value={"G1 Failed"}>{t("stuReg.g1Fail")}</MenuItem>  
+                                    <MenuItem value={"G2 Passed"}>{t("stuReg.g2Pass")}</MenuItem>
+                                    <MenuItem value={"G2 Failed"}>{t("stuReg.g2Fail")}</MenuItem>        
+                                    <MenuItem value={"G3 Passed"}>{t("stuReg.g3Pass")}</MenuItem>
+                                    <MenuItem value={"G3 Failed"}>{t("stuReg.g3Fail")}</MenuItem>    
+                                    <MenuItem value={"G4 Passed"}>{t("stuReg.g4Pass")}</MenuItem>
+                                    <MenuItem value={"G4 Failed"}>{t("stuReg.g4Fail")}</MenuItem>      
+                                    <MenuItem value={"G5 Passed"}>{t("stuReg.g5Pass")}</MenuItem>
+                                    <MenuItem value={"G5 Failed"}>{t("stuReg.g5Fail")}</MenuItem>          
+                                    <MenuItem value={"G6 Passed"}>{t("stuReg.g6Pass")}</MenuItem>
+                                    <MenuItem value={"G6 Failed"}>{t("stuReg.g6Fail")}</MenuItem>  
+                                    <MenuItem value={"G7 Passed"}>{t("stuReg.g7Pass")}</MenuItem>
+                                    <MenuItem value={"G7 Failed"}>{t("stuReg.g7Fail")}</MenuItem>    
+                                    <MenuItem value={"G8 Passed"}>{t("stuReg.g8Pass")}</MenuItem>
+                                    <MenuItem value={"G8 Failed"}>{t("stuReg.g8Fail")}</MenuItem>      
+                                    <MenuItem value={"G9 Passed"}>{t("stuReg.g9Pass")}</MenuItem>
+                                    <MenuItem value={"G9 Failed"}>{t("stuReg.g9Fail")}</MenuItem> 
+                                    <MenuItem value={"G10 Passed"}>{t("stuReg.g10Pass")}</MenuItem>
+                                    <MenuItem value={"G10 Failed"}>{t("stuReg.g10Fail")}</MenuItem>    
+                                    <MenuItem value={"G11 Passed"}>{t("stuReg.g11Pass")}</MenuItem>
+                                    <MenuItem value={"G11 Failed"}>{t("stuReg.g11Fail")}</MenuItem>    
+                                    <MenuItem value={"G12 Passed"}>{t("stuReg.g12Pass")}</MenuItem>
+                                    <MenuItem value={"G12 Failed"}>{t("stuReg.g12Fail")}</MenuItem>                        
+                                </Select> 
                                 {!acaReview && (
                                 <Typography variant="caption" color="error">
-                                    Academic Review is required
+                                    {t("stuReg.academicReviewRequiredText")}
                                 </Typography>    
                             )} 
                             </FormControl>
@@ -753,12 +762,12 @@ export default function Register() {
                                     color="secondary"       
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
-                                    <MenuItem value={"Yes"}>Yes</MenuItem>
-                                    <MenuItem value={"No"}>No</MenuItem>                                                             
+                                    <MenuItem value={"Yes"}>{t("stuReg.yes")}</MenuItem>
+                                    <MenuItem value={"No"}>{t("stuReg.no")}</MenuItem>                                                             
                                 </Select>
                                 {!kidsClubStu && (
                                 <Typography variant="caption" color="error">
-                                    Kids' Club Student Status is required
+                                    {t("stuReg.academicReviewRequiredText")}
                                 </Typography>    
                             )} 
                             </FormControl>
@@ -785,12 +794,12 @@ export default function Register() {
                                     color="secondary"       
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
-                                    <MenuItem value={"Yes"}>Yes</MenuItem>
-                                    <MenuItem value={"No"}>No</MenuItem>                                                             
+                                    <MenuItem value={"Yes"}>{t("stuReg.yes")}</MenuItem>
+                                    <MenuItem value={"No"}>{t("stuReg.no")}</MenuItem>                                                             
                                 </Select>
                                 {!dropoutStu && (
                                 <Typography variant="caption" color="error">
-                                    Drop Out Student Status is required
+                                    {t("stuReg.dropoutStuRequiredText")}
                                 </Typography>    
                             )} 
                             </FormControl>
@@ -807,13 +816,13 @@ export default function Register() {
                                 type="submit"
                                 variant="contained"
                                 sx={{backgroundColor:'#ef6c00', color:'banner'}}>
-                                Submit                                
+                                {t("stuReg.submit")}                               
                             </Button>
                             <Button
                                 type="reset"
                                 variant="contained"
                                 onClick={handleClear}>
-                                Clear                                
+                                {t("stuReg.clear")}                                     
                             </Button>
                         </Box>
                     </Box>

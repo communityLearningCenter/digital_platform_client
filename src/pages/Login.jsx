@@ -11,12 +11,14 @@ import { useNavigate } from "react-router-dom";
 import { useApp } from "../ThemedApp";
 import { postLogin } from "../libs/fetcher"
 import { useMutation } from "react-query";
+import { useTranslation } from "react-i18next";
 
 export default function Login() {
     
     const usernameInput = useRef();
     const passwordInput = useRef();
     const [error, setError] = useState(null);
+    const { t } = useTranslation();
     
     const handleSubmit = () => {
         const username = usernameInput.current.value;
@@ -49,8 +51,8 @@ export default function Login() {
     
     return (    
        <Container sx={{ width:350, height: 300, mt: 25, border: 1, borderRadius: 5, backgroundColor:'banner'}}>
-            <Typography variant="h4" sx={{ mt:-6, ml:-3, pt:1, pl:2, color:'#ef6c00', borderRadius: 5, height: 80, width: 120,backgroundColor:'banner' }}>
-                Login
+            <Typography variant="h4" sx={{ mt:-6, ml:-3, pt:1, pl:2, color:'#ef6c00', borderRadius: 5, height: 80, width: 250,backgroundColor:'banner' }}>
+                {t("header.login")}
             </Typography>
             <Box sx={{pt:-4}}>                
                 {error && (
@@ -78,7 +80,7 @@ export default function Login() {
 
                         <TextField
                             inputRef={usernameInput}
-                            placeholder="Username"
+                            placeholder={t("login.username")}
                             fullWidth
                             color="secondary"        
                             sx={{ mb: 1 }}
@@ -87,7 +89,7 @@ export default function Login() {
                         <TextField
                             inputRef={passwordInput}
                             type="password"
-                            placeholder="Password"
+                            placeholder={t("login.password")}
                             fullWidth
                             color="secondary"        
                             sx={{ mt:1, mb: 5 }}
@@ -98,7 +100,7 @@ export default function Login() {
                             variant="contained"
                             fullWidth
                             sx={{mt:-2.5, ml:9, maxWidth: 150, backgroundColor:'#ef6c00', color:'banner' }}>
-                            Login
+                            {t("login.login1")}
                         </Button>
                     </Box>
                 </form>
