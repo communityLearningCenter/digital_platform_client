@@ -1,8 +1,8 @@
-import {  
-    Alert,   
+import {
+    Alert,
     Box,
-    TextField, 
-    Container, 
+    TextField,
+    Container,
     Typography,
     FormControl,
     Pagination,
@@ -17,6 +17,9 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
@@ -31,6 +34,7 @@ import { useApp } from "../ThemedApp";
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DeleteIcon from "@mui/icons-material/Delete";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const api = import.meta.env.VITE_API_URL;
 
@@ -47,34 +51,34 @@ export default function TeachingMaterials() {
     const fileInputRef = useRef(null);
     const { auth } = useApp();
     console.log("role: ", auth);
-    
+
     const {
         data: fileData = [],
         isLoading: fileLoading,
         refetch,
     } = useQuery("files", async () => {
-            const res = await fetch(`${api}/files`);
-            return res.json();
-        }
+        const res = await fetch(`${api}/files`);
+        return res.json();
+    }
     );
 
     const handleChange = (event) => {
         const { name, value } = event.target;
 
-        switch (name) {            
+        switch (name) {
             case 'topic':
                 setTopic(value);
                 break;
             case 'module':
                 setModule(value);
                 break;
-            }
+        }
     };
 
     const formatDate = (value) => {
         if (!value) return "";
         const date = new Date(value);
-        return format(new Date(value), "dd/MM/yyyy");       
+        return format(new Date(value), "dd/MM/yyyy");
     };
 
     const handleChangePage = (event, value) => {
@@ -90,9 +94,25 @@ export default function TeachingMaterials() {
         ? fileData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         : [];
 
+    // GROUP FILES BY MODULE
+    const groupedFiles = fileData.reduce((topics, file) => {
+        const topicName = file.relatedTopic || "Unknown Topic";
+        const moduleName = file.module || "Unknown Module";
+        if (!topics[topicName]) {
+            topics[topicName] = {};
+        }
+
+        if (!topics[topicName][moduleName]) {
+            topics[topicName][moduleName] = [];
+        }
+
+        topics[topicName][moduleName].push(file);
+        return topics;
+    }, {});
+
     const handleDocumentUpload = (e) => {
         const selectedFiles = Array.from(e.target.files);
-            if (!selectedFiles.length) return;
+        if (!selectedFiles.length) return;
 
         selectedFiles.forEach((file) => {
             const formData = new FormData();
@@ -118,9 +138,9 @@ export default function TeachingMaterials() {
                 setUploading(false);
                 setUploadProgress(0);
 
-                if (xhr.status === 200) {                    
-                    refetch();     
-                    setOpenUploadDialog(false);              
+                if (xhr.status === 200) {
+                    refetch();
+                    setOpenUploadDialog(false);
                 }
             };
 
@@ -145,13 +165,13 @@ export default function TeachingMaterials() {
             headerName: "Topic",
             headerClassName: "super-app-theme--header",
             width: 150,
-        },  
-        {
-            field: "module",
-            headerName: "Module",
-            headerClassName: "super-app-theme--header",
-            width: 150,
-        },    
+        },
+        // {
+        //     field: "module",
+        //     headerName: "Module",
+        //     headerClassName: "super-app-theme--header",
+        //     width: 150,
+        // },    
         {
             field: "uploadedDate",
             headerName: "Uploaded At",
@@ -165,14 +185,14 @@ export default function TeachingMaterials() {
             headerClassName: "super-app-theme--header",
             width: 130,
             renderCell: (params) => (
-            <IconButton
-                onClick={() => handleDownload(params.row)}
-                color="success"
-            >
-                <FileDownloadIcon />
-            </IconButton>
+                <IconButton
+                    onClick={() => handleDownload(params.row)}
+                    color="success"
+                >
+                    <FileDownloadIcon />
+                </IconButton>
             ),
-        },        
+        },
     ];
 
     const deleteColumn = {
@@ -182,10 +202,10 @@ export default function TeachingMaterials() {
         width: 120,
         renderCell: (params) => (
             <IconButton
-            color="error"
-            onClick={() => handleDelete(params.row)}
+                color="error"
+                onClick={() => handleDelete(params.row)}
             >
-            <DeleteIcon />
+                <DeleteIcon />
             </IconButton>
         ),
     };
@@ -200,7 +220,7 @@ export default function TeachingMaterials() {
             const response = await fetch(`${api}/download/${file.id}`)
 
             if (!response.ok) {
-            throw new Error("Failed to download file");
+                throw new Error("Failed to download file");
             }
 
             const blob = await response.blob();
@@ -209,7 +229,7 @@ export default function TeachingMaterials() {
             const link = document.createElement("a");
             link.href = blobUrl;
             link.download = file.name || "download";
-            
+
             document.body.appendChild(link);
             link.click();
 
@@ -229,7 +249,7 @@ export default function TeachingMaterials() {
 
         try {
             const res = await fetch(`${api}/files/${file.id}`, {
-            method: "DELETE",
+                method: "DELETE",
             });
 
             if (!res.ok) throw new Error("Delete failed");
@@ -240,7 +260,7 @@ export default function TeachingMaterials() {
         } catch (err) {
             console.error(err);
         }
-    };    
+    };
 
     const handleOpenUploadDialog = () => {
         setOpenUploadDialog(true);
@@ -265,11 +285,11 @@ export default function TeachingMaterials() {
             </Box>
         );
     }
-        
+
     return (
         <Container maxWidth={false} sx={{ mt: 20, width: '950px' }}>
-            <Typography 
-                variant="h4"                 
+            <Typography
+                variant="h4"
                 sx={{
                     pl: 2,
                     pt: 1,
@@ -288,16 +308,65 @@ export default function TeachingMaterials() {
                 sx={{
                     mt: -5,
                     height: 605,
-                    width: "100%",     
-                    "& .super-app-theme--header": {                
-                    color: "#673ab7",    
-                    fontSize: "1.1rem",
-                    backgroundColor: "banner !important"
-                    },                    
+                    width: "100%",
+                    "& .super-app-theme--header": {
+                        color: "#673ab7",
+                        fontSize: "1.1rem",
+                        backgroundColor: "banner !important"
+                    },
                 }}
             >
-                
-                <DataGrid
+                {
+                    Object.entries(groupedFiles).map(
+                        ([topicName, modules]) => (
+                            <Accordion key={topicName}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                >
+                                    <Typography sx={{ fontWeight: "bold" }}>
+                                        {topicName}
+                                    </Typography>
+                                </AccordionSummary>
+
+                                <AccordionDetails>
+                                {
+                                    Object.entries(modules).map(
+                                        ([moduleName, files]) => (
+                                            <Accordion key={moduleName}>
+                                                <AccordionSummary
+                                                    expandIcon={<ExpandMoreIcon />}
+                                                >
+                                                    <Typography>
+                                                        {moduleName} ({files.length})
+                                                    </Typography>
+                                                </AccordionSummary>
+
+                                                <AccordionDetails>
+                                                    <Box
+                                                        sx={{
+                                                            height: 300,
+                                                            width: "100%"
+                                                        }}
+                                                    >
+                                                        <DataGrid
+                                                            rows={files}
+                                                            columns={columns}
+                                                            hideFooter
+                                                            loading={fileLoading}
+                                                        />
+                                                    </Box>
+                                                </AccordionDetails>
+                                            </Accordion>
+                                        )
+                                    )
+                                }
+                                </AccordionDetails>
+                            </Accordion>
+                        )
+                    )
+                }
+
+                {/* <DataGrid
                 rows={paginatedRows}
                 columns={columns}
                 pagination={false}
@@ -349,9 +418,9 @@ export default function TeachingMaterials() {
                             },
                         }}
                     />
-                </Box> 
-                
-                    {/* <Button variant="contained" component="label">
+                </Box>  */}
+
+                {/* <Button variant="contained" component="label">
                         Upload Documents
                         <input
                         type="file"
@@ -360,7 +429,7 @@ export default function TeachingMaterials() {
                         onChange={handleDocumentUpload}
                         />
                     </Button> */}
-            </Box> 
+            </Box>
 
             {auth?.role === "System Admin" && (
                 <Fab
@@ -418,8 +487,8 @@ export default function TeachingMaterials() {
                             {!topic && (
                                 <Typography variant="caption" color="error">
                                     Please Choose Topic
-                                </Typography>  
-                            )} 
+                                </Typography>
+                            )}
                         </FormControl>
 
                         <FormControl fullWidth>
@@ -438,12 +507,13 @@ export default function TeachingMaterials() {
                                 <MenuItem value="Safeguarding">Safeguarding</MenuItem>
                                 <MenuItem value="PSS">PSS</MenuItem>
                                 <MenuItem value="Peace">Peace</MenuItem>
+                                <MenuItem value="DRR (Environment & Climate Resilience)">DRR (Environment & Climate Resilience)</MenuItem>
                                 <MenuItem value="Teaching Guide">Teaching Guide</MenuItem>
                             </Select>
                             {!module && (
                                 <Typography variant="caption" color="error">
                                     Please Choose Module
-                                </Typography>  
+                                </Typography>
                             )}
                         </FormControl>
 
@@ -490,4 +560,5 @@ export default function TeachingMaterials() {
                 </DialogActions>
             </Dialog>
         </Container>
-)}
+    )
+}

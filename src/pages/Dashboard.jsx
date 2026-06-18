@@ -20,7 +20,7 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import { useQueryClient, useQuery } from "react-query";
 import { useEffect, useState } from "react"; 
 import { createFilterOptions } from "@mui/material/Autocomplete";
-import { fetchStuCountbyAcaYr, fetchStuCountbyGrade, fetchKCStuCountbyLC, fetchStuCountbyGender, fetchStudentbyEnrollStatus, fetchPWDStuCountbyGender, fetchTotalCount, fetchAllAcaYrs,
+import { fetchStuCountbyAcaYr, fetchStuCountbyGrade, fetchAllStuCountbyLC, fetchKCStuCountbyLC, fetchStuCountbyGender, fetchStudentbyEnrollStatus, fetchPWDStuCountbyGender, fetchTotalCount, fetchAllAcaYrs,
     fetchGradingCountforLPforFirstSession, fetchGradingCountforLPforSecondSession,
     fetchGradingCountforUPforFirstSession, fetchGradingCountforUPforSecondSession,} from "../libs/fetcher";
 import {
@@ -46,6 +46,7 @@ const LPCOLORS = ["#AED581", "#81D4FA", "#F8BBD0"];
 const UPCOLORS = ["#8b9a3e", "#ae928d", "#C86464", "#AAB4C8"];
 const GradeColors = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#abd9ce"]
 const KCStuColors =["#f08621", "#e36888", "#b4b534", "#6698cc", "#bfdff3", "#ff9b28", "#ccd537", "#f055a5", "#fabe37", "#7a88fe", "#ff4040", "#ecade7ff", "#7fe0dcff"]
+const AllStuColors =["#b8f079", "#bdaceb", "#f3ced6", "#6698cc", "#a6dde4", "#daa281", "#558a2a", "#df74ab", "#4658a8", "#86aa94", "#973838", "rgb(201, 166, 114)", "rgb(224, 127, 211)"]
 const PWDStudentColors = ["#6698cc","#e36888"]
 const StatCard = ({ title, value, icon }) => (
     <Card elevation={2} sx={{ borderRadius: 2 }}>
@@ -143,6 +144,7 @@ export default function Dashboard() {
     const { data: pwdStudentData} = useQuery(["pwdStudentData", acayr], fetchPWDStuCountbyGender, {enabled: !!acayr});
     const { data: stuCountbyGrade } = useQuery(["stuCountbyGrade", acayr], fetchStuCountbyGrade, { enabled: !!acayr });
     const { data: kcStuCountbyLC } = useQuery(["kcStuCountbyLC", acayr], fetchKCStuCountbyLC, { enabled: !!acayr });
+    const { data: stuCountbyLC } = useQuery(["stuCountbyLC", acayr], fetchAllStuCountbyLC, {enabled: !!acayr}); 
     const { data: totalCount = {} } = useQuery(["totalCount", acayr], fetchTotalCount, { enabled: !!acayr });
     const { data: resultCountofFirstSessionLP= {} } = useQuery(["resultCountofFirstSessionLP", acayr], fetchGradingCountforLPforFirstSession, { enabled: !!acayr });
     const { data: resultCountofSecondSessionLP= {} } = useQuery(["resultCountofSecondSessionLP", acayr], fetchGradingCountforLPforSecondSession, { enabled: !!acayr });
@@ -655,7 +657,7 @@ export default function Dashboard() {
 
                 
                 {/* ===== Bar Charts Row ===== */}
-                <Grid container spacing={2} mb={3}>
+                {/* <Grid container spacing={2} mb={3}>
                     <Grid item xs={12} md={6}>
                         <Card elevation={2} sx={{ borderRadius: 2, height: 400, width: '1090px' }}>
                             <CardContent>
@@ -691,7 +693,7 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
-                </Grid>   
+                </Grid>    */}                
 
                 <Grid container spacing={2} mb={3}>                         
                     <Grid item xs={12} md={6}>
@@ -733,7 +735,49 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
-                </Grid>                        
+                </Grid>     
+
+                <Grid container spacing={2} mb={3}>                         
+                    <Grid item xs={12} md={6}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 400, width: '1090px' }}>
+                            <CardContent>
+                                <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                                    Students Count in All Learning Centers
+                                </Typography>
+
+                                <ResponsiveContainer width="100%" height={340}>
+                                <BarChart data={stuCountbyLC ?? []}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis 
+                                        dataKey="lcname"
+                                        interval={0}           // show all labels
+                                        tick={{ fontSize: 12 }}
+                                        angle={-45}            // rotate labels 45 degrees
+                                        textAnchor="end"       // anchor for rotated text 
+                                        height={100}
+                                    />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Bar dataKey="count" barSize={35} >
+                                        <LabelList 
+                                            dataKey="count" 
+                                            position="top"
+                                            fill="black"
+                                            fontSize={12}
+                                            fontWeight={600}/>
+                                        {(stuCountbyLC ?? []).map((entry, index) => (
+                                            <Cell
+                                                key={index}
+                                                fill={AllStuColors [index]}                                                
+                                            />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>                 
                 
             </Box>
         </Container>

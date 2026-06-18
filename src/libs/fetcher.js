@@ -148,6 +148,21 @@ export async function fetchKCStuCountbyLC({queryKey}){
     return res.json();
 }
 
+export async function fetchAllStuCountbyLC({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
+    const token = getToken();    
+    const res = await fetch(`${api}/allStuCountbyLC?acayr=${encodeURIComponent(acayr)}`, {
+        headers:{
+            Authorization:`Bearer ${token}`,
+        },
+    });
+    if (!res.ok) {
+        const text = await res.text(); // Read text to inspect error
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
 export async function fetchStuCountbyGender({queryKey}){
     const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();        
