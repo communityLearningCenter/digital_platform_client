@@ -45,6 +45,7 @@ export default function TeachingMaterials() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploading, setUploading] = useState(false);
+    //const [uploadedFiles, setUploadedFiles] = useState([]);
     const [openUploadDialog, setOpenUploadDialog] = useState(false);
     const [topic, setTopic] = useState("");
     const [module, setModule] = useState("");
@@ -110,11 +111,50 @@ export default function TeachingMaterials() {
         return topics;
     }, {});
 
+    const allowedExtensions = [
+        "pdf",
+        "doc",
+        "docx",
+        "ppt",
+        "pptx"
+    ];
+
+
+
     const handleDocumentUpload = (e) => {
         const selectedFiles = Array.from(e.target.files);
         if (!selectedFiles.length) return;
 
+        //setUploadedFiles(selectedFiles);
+
+        const invalidFiles = selectedFiles.filter((file)=>{
+
+        const extension =
+            file.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+            return !allowedExtensions.includes(extension);
+        });
+
+        if(invalidFiles.length > 0){
+
+            alert(
+                `Invalid file type:\n${invalidFiles
+                    .map(file=>file.name)
+                    .join("\n")}
+
+                Allowed files: PDF, DOC, DOCX, PPT, PPTX`
+            );
+
+        // clear selected file
+        e.target.value = "";
+        return;
+    }
+
         selectedFiles.forEach((file) => {
+            console.log("topic : ", topic);
             const formData = new FormData();
             formData.append("file", file);
             formData.append("username", data.name);
@@ -151,6 +191,29 @@ export default function TeachingMaterials() {
 
             xhr.send(formData);
         });
+    };
+
+    const formatFileSize = (bytes) => {
+        if (bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = [
+            "Bytes",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+        const i = Math.floor(
+            Math.log(bytes) / Math.log(k)
+        );
+
+        return (
+            Math.round(
+                bytes / Math.pow(k, i)
+            )
+            + " "
+            + sizes[i]
+        );
     };
 
     const baseColumns = [
@@ -319,7 +382,7 @@ export default function TeachingMaterials() {
                 {
                     Object.entries(groupedFiles).map(
                         ([topicName, modules]) => (
-                            <Accordion key={topicName}>
+                            <Accordion key={topicName} defaultExpanded>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                 >
@@ -344,7 +407,7 @@ export default function TeachingMaterials() {
                                                 <AccordionDetails>
                                                     <Box
                                                         sx={{
-                                                            height: 300,
+                                                            height: 300, 
                                                             width: "100%"
                                                         }}
                                                     >
@@ -536,6 +599,28 @@ export default function TeachingMaterials() {
                         >
                             Choose File
                         </Button>
+
+                        {/* {
+                            uploadedFiles.length > 0 && (
+                            <Box sx={{mt:2}}>
+                                {
+                                    uploadedFiles.map((file,index)=>(
+
+                                        <Typography
+                                            key={index}
+                                            variant="body2"
+                                        >
+
+                                        📄 {file.name}
+                                        {" - "}
+                                        {formatFileSize(file.size)}
+                                        </Typography>
+                                    ))
+                                }
+                            </Box>
+
+                            )
+                        } */}
 
                         {uploading && (
                             <>
