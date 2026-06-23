@@ -36,7 +36,6 @@ export default function Register() {
     );
     
     // Fetch student if edit mode
-    console.log("id (is Edit): ", id)
     const { data: student, isLoading } = useQuery(
         ["student", id],
         () => fetchStudent(id),
@@ -147,7 +146,6 @@ export default function Register() {
             kidsClubStu,
             dropoutStu,
         };
-        console.log("payload : ", payload);
         if (isEdit) {
             update.mutate({ id, data: payload });
         } else {

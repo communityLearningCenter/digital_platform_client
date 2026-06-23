@@ -18,7 +18,7 @@ import {
 } from "@mui/icons-material";
 
 export default function Header() {
-    const {auth, showDrawer, setShowDrawer} = useApp();    
+    const {auth, showDrawer, setShowDrawer, logout} = useApp();    
     const role = auth ? auth.role : "Guest";
     const { t, i18n } = useTranslation();
 
@@ -69,8 +69,7 @@ export default function Header() {
                     ) : (
                         <Link component={RouterLink} to="/" color="#ef6c00" underline="none" sx={{ p: 2, fontSize: 20 }} 
                             onClick={() => {
-                                localStorage.removeItem("token");
-                                setAuth(null);
+                                logout();
                                 navigate("/");
                             }}>
                             {t("header.logout")}

@@ -136,6 +136,13 @@ export default function ThemedApp() {
         });
     }, [mode]);
 
+    const logout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setAuth(null);
+    };
+
     return (
         <ThemeProvider theme={theme}>
             <AppContext.Provider 
@@ -144,7 +151,8 @@ export default function ThemedApp() {
                     showForm, setShowForm, 
                     globalMsg, setGlobalMsg,
                     auth, setAuth,
-                    mode, setMode,                     
+                    mode, setMode,       
+                    logout,    
                     }}> 
                 <QueryClientProvider client={queryClient}>
                     <RouterProvider router={router}/>

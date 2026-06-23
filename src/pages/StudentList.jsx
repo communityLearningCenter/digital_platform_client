@@ -48,6 +48,15 @@ export default function StudentList() {
           { id: 1, field: "status", value: "all" },
   ]);
 
+  const [filterModel, setFilterModel] = useState({
+    items: [],
+  });
+
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
+
   const { isLoading, isError, error, data } = useQuery(
     ["students", auth?.role, auth?.learningCenterId], // query key
     () => fetchFn(auth?.learningCenterId),            // pass LC ID for restricted fetch
@@ -81,9 +90,43 @@ export default function StudentList() {
     setPage(0);
   };
 
-  const paginatedRows = Array.isArray(data)
-    ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-    : [];
+  // const paginatedRows = Array.isArray(data)
+  //   ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+  //   : [];
+
+  const filteredRows = Array.isArray(data)
+  ? data.filter((row) =>
+      filterModel.items.every((filter) => {
+        if (!filter.value) return true;
+
+        return String(row[filter.field])
+          .toLowerCase()
+          .includes(String(filter.value).toLowerCase());
+      })
+    )
+  : [];
+
+  const sortedRows = [...filteredRows].sort((a, b) => {
+    // Group by Learning Center
+    const lcCompare = String(a.lcname).localeCompare(String(b.lcname));
+      if (lcCompare !== 0) {
+        return lcCompare;
+      }
+      // Then sort by Student ID
+      return String(a.stuID).localeCompare(String(b.stuID), undefined, {
+        numeric: true,
+      });
+  });
+
+
+  const paginatedRows = sortedRows.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const handleFilterChange = () => {
+    setPage(0);
+  };
 
   const columns = [
     //{ field: "id", headerName: "ID", width: 90, headeralign: 'center', headerClassName: "super-app-theme--header" },
@@ -134,8 +177,10 @@ const exportToExcel = (rows) => {
     "Grade",
     "Gender",
     "PWD",
+    "PWD Type",
     "Guardian Name",
     "Guardian NRC",
+    "Guardian Type",
     "Family Members",
     "Over 18 Years Old",
     "",
@@ -148,7 +193,7 @@ const exportToExcel = (rows) => {
   ];
 
   const headerRow2 = [
-    "", "", "", "", "", "", "", "", "", "",
+    "", "", "", "", "", "", "", "", "", "", "", "",
     "Male", "Female",
     "Male", "Female",
     "", "", "", ""
@@ -163,14 +208,16 @@ const exportToExcel = (rows) => {
     r.grade,
     r.gender,
     r.pwd,
+    r.pwd_type,
     r.guardianName,
     r.guardianNRC,
+    r.guardianType,
     r.familyMember,
     r.over18Male,
     r.over18Female,
     r.under18Male,
     r.under18Female,
-    r.studentStatus,
+    r.stuStatus,
     r.acaReview,
     r.kidsClubStu,
     r.dropoutStu,
@@ -192,39 +239,43 @@ const exportToExcel = (rows) => {
     { s: { r: 0, c: 4 }, e: { r: 1, c: 4 } }, // Grade
     { s: { r: 0, c: 5 }, e: { r: 1, c: 5 } }, // Gender
     { s: { r: 0, c: 6 }, e: { r: 1, c: 6 } }, // PWD
-    { s: { r: 0, c: 7 }, e: { r: 1, c: 7 } }, // Guardian Name
-    { s: { r: 0, c: 8 }, e: { r: 1, c: 8 } }, // Guardian NRC
-    { s: { r: 0, c: 9 }, e: { r: 1, c: 9 } }, // Family Members
-    { s: { r: 0, c: 14 }, e: { r: 1, c: 14 } }, // Student Status
-    { s: { r: 0, c: 15 }, e: { r: 1, c: 15 } }, // Academic Review
-    { s: { r: 0, c: 16 }, e: { r: 1, c: 16 } }, // Kid's Club Student
-    { s: { r: 0, c: 17 }, e: { r: 1, c: 17 } }, // Dropout Student
+    { s: { r: 0, c: 7 }, e: { r: 1, c: 7 } }, // PWD Type
+    { s: { r: 0, c: 8 }, e: { r: 1, c: 8 } }, // Guardian Name
+    { s: { r: 0, c: 9 }, e: { r: 1, c: 9 } }, // Guardian NRC
+    { s: { r: 0, c: 10 }, e: { r: 1, c: 10 } }, // Guardian Type
+    { s: { r: 0, c: 11 }, e: { r: 1, c: 11 } }, // Family Members
+    { s: { r: 0, c: 16 }, e: { r: 1, c: 16 } }, // Student Status
+    { s: { r: 0, c: 17 }, e: { r: 1, c: 17 } }, // Academic Review
+    { s: { r: 0, c: 18 }, e: { r: 1, c: 18 } }, // Kid's Club Student
+    { s: { r: 0, c: 19 }, e: { r: 1, c: 19 } }, // Dropout Student
 
     // Merge grouped headers
-    { s: { r: 0, c: 10 }, e: { r: 0, c: 11 } }, // Over 18 Years Old
-    { s: { r: 0, c: 12 }, e: { r: 0, c: 13 } }, // Under 18 Years Old
+    { s: { r: 0, c: 12 }, e: { r: 0, c: 13 } }, // Over 18 Years Old
+    { s: { r: 0, c: 14 }, e: { r: 0, c: 15 } }, // Under 18 Years Old
   ];
 
   // --- Step 5: Optional column widths ---
   worksheet["!cols"] = [
     { wch: 20 }, // Learning Center
-    { wch: 15 },
-    { wch: 20 },
-    { wch: 15 },
-    { wch: 10 },
-    { wch: 10 },
-    { wch: 10 },
-    { wch: 20 },
-    { wch: 20 },
-    { wch: 15 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 15 },
-    { wch: 20 },
-    { wch: 20 },
-    { wch: 20 },
+    { wch: 15 }, // Academic Year
+    { wch: 20 }, // Name
+    { wch: 15 }, // Student ID
+    { wch: 10 }, // Grade
+    { wch: 10 }, // Gender
+    { wch: 10 }, // PWD
+    { wch: 20 }, // PWD Type
+    { wch: 20 }, // Guardian Name
+    { wch: 20 }, // Guardian NRC
+    { wch: 20 }, // Guardian Type
+    { wch: 15 }, // Family Members
+    { wch: 12 }, // Over 18 Years Old (Male)
+    { wch: 12 }, // Over 18 Years Old (Female)
+    { wch: 12 }, // Under 18 Years Old (Male)
+    { wch: 12 }, // Under 18 Years Old (Female)
+    { wch: 15 }, // Student Status
+    { wch: 20 }, // Academic Review
+    { wch: 20 }, // Kid's Club Student
+    { wch: 20 }, // Dropout Student
   ];
 
   // --- Step 6: Build workbook and export ---
@@ -300,6 +351,11 @@ const exportToExcel = (rows) => {
             getRowId={(row) => row.id}                       
             sx={{ p:2, borderRadius: 2, backgroundColor: "banner"}}
             onRowClick={(params) => navigate(`/registration/${params.row.id}`)}
+            //onFilterModelChange={handleFilterChange}
+            onFilterModelChange={(model) => {
+              setFilterModel(model);
+              setPage(0);}
+            }
         />
       </Box>
 
@@ -342,7 +398,8 @@ const exportToExcel = (rows) => {
         </Dialog>
 
         <Pagination
-            count={Math.ceil((data?.length || 0) / rowsPerPage)}
+            //count={Math.ceil((data?.length || 0) / rowsPerPage)}
+            count={Math.ceil(filteredRows.length / rowsPerPage)}
             page={page + 1}
             onChange={handleChangePage}
             size="large"
@@ -372,7 +429,7 @@ const exportToExcel = (rows) => {
                 id: "export",
                 icon: <DownloadIcon sx={{ color: "#000" }} />,
                 label: "Export to Excel",
-                onClick: () => exportToExcel(data),
+                onClick: () => exportToExcel(sortedRows),
             }
         ]}
     />

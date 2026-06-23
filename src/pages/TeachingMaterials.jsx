@@ -51,7 +51,6 @@ export default function TeachingMaterials() {
     const [module, setModule] = useState("");
     const fileInputRef = useRef(null);
     const { auth } = useApp();
-    console.log("role: ", auth);
 
     const {
         data: fileData = [],
@@ -154,7 +153,6 @@ export default function TeachingMaterials() {
     }
 
         selectedFiles.forEach((file) => {
-            console.log("topic : ", topic);
             const formData = new FormData();
             formData.append("file", file);
             formData.append("username", data.name);

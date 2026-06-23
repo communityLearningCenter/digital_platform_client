@@ -95,7 +95,7 @@ const menuConfig = {
 };
 
 export default function AppDrawer() {
-  const { showDrawer, setShowDrawer, auth, setAuth } = useApp();
+  const { showDrawer, setShowDrawer, auth, setAuth, logout } = useApp();
   const [openMenus, setOpenMenus] = React.useState({});
   const navigate = useNavigate();
 
@@ -254,8 +254,7 @@ export default function AppDrawer() {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  localStorage.removeItem("token");
-                  setAuth(null);
+                  logout();
                   navigate("/");
                   setShowDrawer(false);
                 }}
