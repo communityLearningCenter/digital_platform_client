@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient} from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useState } from "react";
 import { useApp } from "../ThemedApp";
 import { useNavigate } from "react-router-dom";
@@ -35,17 +35,19 @@ export default function StudentList() {
   //const { isLoading, isError, error, data } = useQuery("students", fetchAllStudents);
 
   const [page, setPage] = useState(0);
-  const {auth} = useApp();
+  const { auth } = useApp();
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState(null);
   const [open, setOpen] = useState(false);
+  const [academicYear, setAcademicYear] = useState("All");
+  const [acayr, setAcaYr] = useState("");
 
   const fetchFn = auth?.role === "System Admin" ? fetchAllStudents : fetchAllStudentsByLC;
 
   const [filters, setFilters] = useState([
-          { id: 1, field: "status", value: "all" },
+    { id: 1, field: "status", value: "all" },
   ]);
 
   const [filterModel, setFilterModel] = useState({
@@ -63,12 +65,24 @@ export default function StudentList() {
     { enabled: !!auth }                               // only run if auth is ready
   );
 
-   const mutation = useMutation((id) => deleteStudent(id), {
+  const mutation = useMutation((id) => deleteStudent(id), {
     onSuccess: () => {
       queryClient.invalidateQueries("students"); // refresh list
       setOpen(false);
     },
   });
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    switch (name) {
+      case 'acayr':
+        setAcaYr(value);
+        break;
+      default:
+        break;
+    }
+  }
 
   const handleDeleteClick = (id) => {
     setSelectedId(id);
@@ -95,27 +109,32 @@ export default function StudentList() {
   //   : [];
 
   const filteredRows = Array.isArray(data)
-  ? data.filter((row) =>
-      filterModel.items.every((filter) => {
+    ? data.filter((row) => {
+      // Academic Year filter
+      if (acayr && row.acayr !== acayr) {
+        return false;
+      }
+
+      return filterModel.items.every((filter) => {
         if (!filter.value) return true;
 
-        return String(row[filter.field])
+        return String(row[filter.field] ?? "")
           .toLowerCase()
           .includes(String(filter.value).toLowerCase());
-      })
-    )
-  : [];
+      });
+    })
+    : [];
 
   const sortedRows = [...filteredRows].sort((a, b) => {
     // Group by Learning Center
     const lcCompare = String(a.lcname).localeCompare(String(b.lcname));
-      if (lcCompare !== 0) {
-        return lcCompare;
-      }
-      // Then sort by Student ID
-      return String(a.stuID).localeCompare(String(b.stuID), undefined, {
-        numeric: true,
-      });
+    if (lcCompare !== 0) {
+      return lcCompare;
+    }
+    // Then sort by Student ID
+    return String(a.stuID).localeCompare(String(b.stuID), undefined, {
+      numeric: true,
+    });
   });
 
 
@@ -148,12 +167,14 @@ export default function StudentList() {
     { field: "acaReview", headerName: "Academic Review", width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
     { field: "kidsClubStu", headerName: "Kid's Club Student", width: 160, headeralign: 'center', headerClassName: "super-app-theme--header" },
     { field: "dropoutStu", headerName: "Dropout Student", width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "actions", headerName: "Actions", width: 120, headeralign: 'center', headerClassName: "super-app-theme--header",
+    {
+      field: "actions", headerName: "Actions", width: 120, headeralign: 'center', headerClassName: "super-app-theme--header",
       renderCell: (params) => (
-        <IconButton 
+        <IconButton
           color="error" onClick={(e) => {
             e.stopPropagation();
-            handleDeleteClick(params.row.id)}
+            handleDeleteClick(params.row.id)
+          }
           }
         >
           <DeleteIcon />
@@ -162,129 +183,129 @@ export default function StudentList() {
     },
   ];
 
-const exportToExcel = (rows) => {
-  if (!rows || rows.length === 0) {
-    alert("No data to export!");
-    return;
-  }
+  const exportToExcel = (rows) => {
+    if (!rows || rows.length === 0) {
+      alert("No data to export!");
+      return;
+    }
 
-  // --- Step 1: Define the header layout ---
-  const headerRow1 = [
-    "Learning Center",
-    "Academic Year",
-    "Name",
-    "Student ID",
-    "Grade",
-    "Gender",
-    "PWD",
-    "PWD Type",
-    "Guardian Name",
-    "Guardian NRC",
-    "Guardian Type",
-    "Family Members",
-    "Over 18 Years Old",
-    "",
-    "Under 18 Years Old",
-    "",
-    "Student Status",
-    "Academic Review",
-    "Kid's Club Student",
-    "Dropout Student",
-  ];
+    // --- Step 1: Define the header layout ---
+    const headerRow1 = [
+      "Learning Center",
+      "Academic Year",
+      "Name",
+      "Student ID",
+      "Grade",
+      "Gender",
+      "PWD",
+      "PWD Type",
+      "Guardian Name",
+      "Guardian NRC",
+      "Guardian Type",
+      "Family Members",
+      "Over 18 Years Old",
+      "",
+      "Under 18 Years Old",
+      "",
+      "Student Status",
+      "Academic Review",
+      "Kid's Club Student",
+      "Dropout Student",
+    ];
 
-  const headerRow2 = [
-    "", "", "", "", "", "", "", "", "", "", "", "",
-    "Male", "Female",
-    "Male", "Female",
-    "", "", "", ""
-  ];
+    const headerRow2 = [
+      "", "", "", "", "", "", "", "", "", "", "", "",
+      "Male", "Female",
+      "Male", "Female",
+      "", "", "", ""
+    ];
 
-  // --- Step 2: Create data rows ---
-  const dataRows = rows.map((r) => [
-    r.lcname,
-    r.acayr,
-    r.name,
-    r.stuID,
-    r.grade,
-    r.gender,
-    r.pwd,
-    r.pwd_type,
-    r.guardianName,
-    r.guardianNRC,
-    r.guardianType,
-    r.familyMember,
-    r.over18Male,
-    r.over18Female,
-    r.under18Male,
-    r.under18Female,
-    r.stuStatus,
-    r.acaReview,
-    r.kidsClubStu,
-    r.dropoutStu,
-  ]);
+    // --- Step 2: Create data rows ---
+    const dataRows = rows.map((r) => [
+      r.lcname,
+      r.acayr,
+      r.name,
+      r.stuID,
+      r.grade,
+      r.gender,
+      r.pwd,
+      r.pwd_type,
+      r.guardianName,
+      r.guardianNRC,
+      r.guardianType,
+      r.familyMember,
+      r.over18Male,
+      r.over18Female,
+      r.under18Male,
+      r.under18Female,
+      r.stuStatus,
+      r.acaReview,
+      r.kidsClubStu,
+      r.dropoutStu,
+    ]);
 
-  // Combine all rows
-  const allData = [headerRow1, headerRow2, ...dataRows];
+    // Combine all rows
+    const allData = [headerRow1, headerRow2, ...dataRows];
 
-  // --- Step 3: Create worksheet from data ---
-  const worksheet = XLSX.utils.aoa_to_sheet(allData);
+    // --- Step 3: Create worksheet from data ---
+    const worksheet = XLSX.utils.aoa_to_sheet(allData);
 
-  // --- Step 4: Define merged cells ---
-  worksheet["!merges"] = [
-    // Merge normal headers over row 1–2
-    { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } }, // Learning Center
-    { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } }, // Academic Year
-    { s: { r: 0, c: 2 }, e: { r: 1, c: 2 } }, // Name
-    { s: { r: 0, c: 3 }, e: { r: 1, c: 3 } }, // Student ID
-    { s: { r: 0, c: 4 }, e: { r: 1, c: 4 } }, // Grade
-    { s: { r: 0, c: 5 }, e: { r: 1, c: 5 } }, // Gender
-    { s: { r: 0, c: 6 }, e: { r: 1, c: 6 } }, // PWD
-    { s: { r: 0, c: 7 }, e: { r: 1, c: 7 } }, // PWD Type
-    { s: { r: 0, c: 8 }, e: { r: 1, c: 8 } }, // Guardian Name
-    { s: { r: 0, c: 9 }, e: { r: 1, c: 9 } }, // Guardian NRC
-    { s: { r: 0, c: 10 }, e: { r: 1, c: 10 } }, // Guardian Type
-    { s: { r: 0, c: 11 }, e: { r: 1, c: 11 } }, // Family Members
-    { s: { r: 0, c: 16 }, e: { r: 1, c: 16 } }, // Student Status
-    { s: { r: 0, c: 17 }, e: { r: 1, c: 17 } }, // Academic Review
-    { s: { r: 0, c: 18 }, e: { r: 1, c: 18 } }, // Kid's Club Student
-    { s: { r: 0, c: 19 }, e: { r: 1, c: 19 } }, // Dropout Student
+    // --- Step 4: Define merged cells ---
+    worksheet["!merges"] = [
+      // Merge normal headers over row 1–2
+      { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } }, // Learning Center
+      { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } }, // Academic Year
+      { s: { r: 0, c: 2 }, e: { r: 1, c: 2 } }, // Name
+      { s: { r: 0, c: 3 }, e: { r: 1, c: 3 } }, // Student ID
+      { s: { r: 0, c: 4 }, e: { r: 1, c: 4 } }, // Grade
+      { s: { r: 0, c: 5 }, e: { r: 1, c: 5 } }, // Gender
+      { s: { r: 0, c: 6 }, e: { r: 1, c: 6 } }, // PWD
+      { s: { r: 0, c: 7 }, e: { r: 1, c: 7 } }, // PWD Type
+      { s: { r: 0, c: 8 }, e: { r: 1, c: 8 } }, // Guardian Name
+      { s: { r: 0, c: 9 }, e: { r: 1, c: 9 } }, // Guardian NRC
+      { s: { r: 0, c: 10 }, e: { r: 1, c: 10 } }, // Guardian Type
+      { s: { r: 0, c: 11 }, e: { r: 1, c: 11 } }, // Family Members
+      { s: { r: 0, c: 16 }, e: { r: 1, c: 16 } }, // Student Status
+      { s: { r: 0, c: 17 }, e: { r: 1, c: 17 } }, // Academic Review
+      { s: { r: 0, c: 18 }, e: { r: 1, c: 18 } }, // Kid's Club Student
+      { s: { r: 0, c: 19 }, e: { r: 1, c: 19 } }, // Dropout Student
 
-    // Merge grouped headers
-    { s: { r: 0, c: 12 }, e: { r: 0, c: 13 } }, // Over 18 Years Old
-    { s: { r: 0, c: 14 }, e: { r: 0, c: 15 } }, // Under 18 Years Old
-  ];
+      // Merge grouped headers
+      { s: { r: 0, c: 12 }, e: { r: 0, c: 13 } }, // Over 18 Years Old
+      { s: { r: 0, c: 14 }, e: { r: 0, c: 15 } }, // Under 18 Years Old
+    ];
 
-  // --- Step 5: Optional column widths ---
-  worksheet["!cols"] = [
-    { wch: 20 }, // Learning Center
-    { wch: 15 }, // Academic Year
-    { wch: 20 }, // Name
-    { wch: 15 }, // Student ID
-    { wch: 10 }, // Grade
-    { wch: 10 }, // Gender
-    { wch: 10 }, // PWD
-    { wch: 20 }, // PWD Type
-    { wch: 20 }, // Guardian Name
-    { wch: 20 }, // Guardian NRC
-    { wch: 20 }, // Guardian Type
-    { wch: 15 }, // Family Members
-    { wch: 12 }, // Over 18 Years Old (Male)
-    { wch: 12 }, // Over 18 Years Old (Female)
-    { wch: 12 }, // Under 18 Years Old (Male)
-    { wch: 12 }, // Under 18 Years Old (Female)
-    { wch: 15 }, // Student Status
-    { wch: 20 }, // Academic Review
-    { wch: 20 }, // Kid's Club Student
-    { wch: 20 }, // Dropout Student
-  ];
+    // --- Step 5: Optional column widths ---
+    worksheet["!cols"] = [
+      { wch: 20 }, // Learning Center
+      { wch: 15 }, // Academic Year
+      { wch: 20 }, // Name
+      { wch: 15 }, // Student ID
+      { wch: 10 }, // Grade
+      { wch: 10 }, // Gender
+      { wch: 10 }, // PWD
+      { wch: 20 }, // PWD Type
+      { wch: 20 }, // Guardian Name
+      { wch: 20 }, // Guardian NRC
+      { wch: 20 }, // Guardian Type
+      { wch: 15 }, // Family Members
+      { wch: 12 }, // Over 18 Years Old (Male)
+      { wch: 12 }, // Over 18 Years Old (Female)
+      { wch: 12 }, // Under 18 Years Old (Male)
+      { wch: 12 }, // Under 18 Years Old (Female)
+      { wch: 15 }, // Student Status
+      { wch: 20 }, // Academic Review
+      { wch: 20 }, // Kid's Club Student
+      { wch: 20 }, // Dropout Student
+    ];
 
-  // --- Step 6: Build workbook and export ---
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+    // --- Step 6: Build workbook and export ---
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
 
-  const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-  saveAs(new Blob([wbout], { type: "application/octet-stream" }), `Student_List_${new Date().toISOString()}.xlsx`);
-};
+    const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    saveAs(new Blob([wbout], { type: "application/octet-stream" }), `Student_List_${new Date().toISOString()}.xlsx`);
+  };
 
   if (isError) {
     return (
@@ -304,86 +325,114 @@ const exportToExcel = (rows) => {
 
   return (
     <Container maxWidth="xl" sx={{ mt: 20 }}>
-      <Typography
-        variant="h4"
-        sx={{
-          pl: 2,
-          pt: 1,
-          mb: 2,
-          color: "#ef6c00",
-          backgroundColor: "banner",
-          borderRadius: 5,
-          height: 90,
-          width: 220,
-        }}
-      >
-        Student List
-      </Typography>         
+      <Box sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        mb: 2,
+      }}>
+        <Typography
+          variant="h4"
+          sx={{
+            pl: 2,
+            pt: 1,
+            color: "#ef6c00",
+            backgroundColor: "banner",
+            borderRadius: 5,
+            height: 80,
+            width: 250,
+          }}
+        >
+          Student List
+        </Typography>
+
+        <FormControl fullWidth color="secondary">
+          <InputLabel id="LabelAcaYr" sx={{ ml: 137, mb: 4 }}>Academic Year</InputLabel>
+          <Select
+            name="acayr"
+            labelId="LabelAcaYr"
+            id="formAcaYr"
+            label="Academic Year"
+            value={acayr}
+            onChange={handleChange}
+            color="secondary" focused
+            required
+            error={!acayr}
+            sx={{ ml: 134, mb: 4, width: 200, borderRadius: 2, backgroundColor: "banner" }}>
+            <MenuItem value={""}>All</MenuItem>
+            <MenuItem value={"2024 - 2025"}>2024 - 2025</MenuItem>
+            <MenuItem value={"2025 - 2026"}>2025 - 2026</MenuItem>
+            <MenuItem value={"2026 - 2027"}>2026 - 2027</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
       <Box
-          sx={{
-            mt: -6,
-            height: 605,
-            width: "100%",                     
-            "& .super-app-theme--header": {                
-              color: "#673ab7",    
-              fontSize: "1.1rem",
-              backgroundColor: "banner !important"
-            },
-            // Wrap long header text
-            "& .MuiDataGrid-columnHeaderTitle": {
-              whiteSpace: "normal !important",
-              lineHeight: "1.2 !important",
-              textAlign: "center",
-            },
-            "& .MuiDataGrid-columnHeader": {
-              alignItems: "center !important",
-              padding: "8px !important",
-            },             
-          }}
-      >        
+        sx={{
+          mt: -5,
+          height: 605,
+          width: "100%",
+          "& .super-app-theme--header": {
+            color: "#673ab7",
+            fontSize: "1.1rem",
+            backgroundColor: "banner !important"
+          },
+          // Wrap long header text
+          "& .MuiDataGrid-columnHeaderTitle": {
+            whiteSpace: "normal !important",
+            lineHeight: "1.2 !important",
+            textAlign: "center",
+          },
+          "& .MuiDataGrid-columnHeader": {
+            alignItems: "center !important",
+            padding: "8px !important",
+          },
+        }}
+      >
+
         <DataGrid
-            rows={paginatedRows}
-            columns={columns}
-            pagination={false}
-            disableSelectionOnClick
-            hideFooter
-            getRowId={(row) => row.id}                       
-            sx={{ p:2, borderRadius: 2, backgroundColor: "banner"}}
-            onRowClick={(params) => navigate(`/registration/${params.row.id}`)}
-            //onFilterModelChange={handleFilterChange}
-            onFilterModelChange={(model) => {
-              setFilterModel(model);
-              setPage(0);}
-            }
+          rows={paginatedRows}
+          columns={columns}
+          pagination={false}
+          disableSelectionOnClick
+          hideFooter
+          getRowId={(row) => row.id}
+          sx={{ p: 2, borderRadius: 2, backgroundColor: "banner" }}
+          onRowClick={(params) => navigate(`/registration/${params.row.id}`)}
+          //onFilterModelChange={handleFilterChange}
+          onFilterModelChange={(model) => {
+            setFilterModel(model);
+            setPage(0);
+          }
+          }
         />
       </Box>
 
       <Box
-          sx={{
-              display: "flex",
-              justifyContent: "center",
-              p: 1,
-              backgroundColor: "banner",
-              borderTop: "1px solid",
-              borderRadius: 1,
-              mt: -0.5,
-              alignItems: "center",
-          }}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          p: 1,
+          backgroundColor: "banner",
+          borderTop: "1px solid",
+          borderRadius: 1,
+          mt: -0.5,
+          alignItems: "center",
+        }}
       >
         <FormControl size="small">
-            <InputLabel id="rows-per-page-label">Rows</InputLabel>
-            <Select
-              labelId="rows-per-page-label"
-              value={rowsPerPage}
-              label="Rows per page"
-              onChange={handleChangeRowsPerPage}                >
-              {[5, 10, 20, 50].map((option) => (
+          <InputLabel id="rows-per-page-label">Rows</InputLabel>
+          <Select
+            labelId="rows-per-page-label"
+            value={rowsPerPage}
+            label="Rows per page"
+            onChange={handleChangeRowsPerPage}                >
+            {[5, 10, 20, 50].map((option) => (
               <MenuItem key={option} value={option}>
-                  {option}
+                {option}
               </MenuItem>
             ))}
-            </Select>
+          </Select>
         </FormControl>
 
         {/* Confirm dialog */}
@@ -398,20 +447,20 @@ const exportToExcel = (rows) => {
         </Dialog>
 
         <Pagination
-            //count={Math.ceil((data?.length || 0) / rowsPerPage)}
-            count={Math.ceil(filteredRows.length / rowsPerPage)}
-            page={page + 1}
-            onChange={handleChangePage}
-            size="large"
-            sx={{
-                "& .MuiPaginationItem-root": {
-                color: "black",
-                },
-                "& .Mui-selected": {
-                backgroundColor: "#673ab7 !important",
-                color: "#fff",
-                },
-            }}
+          //count={Math.ceil((data?.length || 0) / rowsPerPage)}
+          count={Math.ceil(filteredRows.length / rowsPerPage)}
+          page={page + 1}
+          onChange={handleChangePage}
+          size="large"
+          sx={{
+            "& .MuiPaginationItem-root": {
+              color: "black",
+            },
+            "& .Mui-selected": {
+              backgroundColor: "#673ab7 !important",
+              color: "#fff",
+            },
+          }}
         />
       </Box>
 
@@ -419,20 +468,20 @@ const exportToExcel = (rows) => {
         tooltip="Student Actions"
         position={{ bottom: 32, right: 32 }}
         actions={[
-            {
-                id: "add",
-                icon: <AddIcon sx={{ color: "#000" }} />,
-                label: "Add Student",
-                onClick: () => navigate("/registration/new"),
-            },
-            {
-                id: "export",
-                icon: <DownloadIcon sx={{ color: "#000" }} />,
-                label: "Export to Excel",
-                onClick: () => exportToExcel(sortedRows),
-            }
+          {
+            id: "add",
+            icon: <AddIcon sx={{ color: "#000" }} />,
+            label: "Add Student",
+            onClick: () => navigate("/registration"),
+          },
+          {
+            id: "export",
+            icon: <DownloadIcon sx={{ color: "#000" }} />,
+            label: "Export to Excel",
+            onClick: () => exportToExcel(sortedRows),
+          }
         ]}
-    />
+      />
     </Container>
   );
 }

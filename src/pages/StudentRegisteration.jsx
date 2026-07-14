@@ -198,6 +198,7 @@ export default function Register() {
     const findStudentByStuID = useMutation(fetchStudentbyStuID, {
         onSuccess: (data) => {
             setName(data.name || "");
+            setGrade(data.grade || "");
             setGender(data.gender || "");
             setPWD(data.pwd || "");
             setPWDType(data.pwd_type || "");
@@ -398,8 +399,8 @@ export default function Register() {
                                     <MenuItem value={"G-8"}>G-8</MenuItem>
                                     <MenuItem value={"G-9"}>G-9</MenuItem>
                                     <MenuItem value={"G-10"}>G-10</MenuItem> 
-                                    <MenuItem value={"G-10"}>G-11</MenuItem> 
-                                    <MenuItem value={"G-10"}>G-12</MenuItem>                                
+                                    <MenuItem value={"G-11"}>G-11</MenuItem> 
+                                    <MenuItem value={"G-12"}>G-12</MenuItem>                                
                                 </Select>
                                 {!grade && (
                                 <Typography variant="caption" color="error">

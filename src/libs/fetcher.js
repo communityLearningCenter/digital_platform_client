@@ -90,6 +90,7 @@ export async function fetchStudent(id){
 
 export async function fetchStudentbyStuID(stuID){
     const token = getToken();    
+    console.log("stuID : ", stuID)
     const res = await fetch(`${api}/registration/by-stuid/${stuID}`, {
         headers:{
             Authorization:`Bearer ${token}`,
