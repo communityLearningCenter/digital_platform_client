@@ -388,6 +388,7 @@ export default function Register() {
                                     error={!grade}
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
+                                    <MenuItem value={"Preschool"}>Preschool</MenuItem>
                                     <MenuItem value={"KG"}>KG</MenuItem>
                                     <MenuItem value={"G-1"}>G-1</MenuItem>
                                     <MenuItem value={"G-2"}>G-2</MenuItem>
