@@ -706,6 +706,9 @@ export default function Register() {
                                     color="secondary"       
                                     fullWidth>
                                     <MenuItem value={""}></MenuItem>
+                                    <MenuItem value={"PS"}>{t("stuReg.ps")}</MenuItem>
+                                    <MenuItem value={"PS Passed"}>{t("stuReg.psPass")}</MenuItem>
+                                    <MenuItem value={"PS Failed"}>{t("stuReg.psFail")}</MenuItem>
                                     <MenuItem value={"KG Passed"}>{t("stuReg.kgPass")}</MenuItem>
                                     <MenuItem value={"KG Failed"}>{t("stuReg.kgFail")}</MenuItem>       
                                     <MenuItem value={"G1 Passed"}>{t("stuReg.g1Pass")}</MenuItem>
