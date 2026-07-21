@@ -480,10 +480,10 @@ export default function Register() {
                                         onChange={handleChange}
                                         color="secondary" focused       
                                         fullWidth>
-                                        <MenuItem value={"visual"}>Visual Impairment</MenuItem>
-                                        <MenuItem value={"hearing"}>Hearing Impairment</MenuItem>
-                                        <MenuItem value={"physical"}>Physical Disability</MenuItem>    
-                                        <MenuItem value={"intellectual"}>Intellectual Disability</MenuItem>  
+                                        <MenuItem value={"Visual"}>Visual Impairment</MenuItem>
+                                        <MenuItem value={"Hearing"}>Hearing Impairment</MenuItem>
+                                        <MenuItem value={"Physical"}>Physical Disability</MenuItem>    
+                                        <MenuItem value={"Intellectual"}>Intellectual Disability</MenuItem>  
                                     </Select>
                                 </FormControl>
                             </Box>
