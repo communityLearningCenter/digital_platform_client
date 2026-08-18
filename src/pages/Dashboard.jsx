@@ -21,8 +21,8 @@ import { useQueryClient, useQuery } from "react-query";
 import { useEffect, useState } from "react"; 
 import { createFilterOptions } from "@mui/material/Autocomplete";
 import { fetchStuCountbyAcaYr, fetchStuCountbyGrade, fetchAllStuCountbyLC, fetchKCStuCountbyLC, fetchStuCountbyGender, fetchStudentbyEnrollStatus, fetchPWDStuCountbyGender, fetchTotalCount, fetchAllAcaYrs,
-    fetchGradingCountforLPforFirstSession, fetchGradingCountforLPforSecondSession,
-    fetchGradingCountforUPforFirstSession, fetchGradingCountforUPforSecondSession,} from "../libs/fetcher";
+    fetchGradingCountforLPforFirstSession, fetchGradingCountforLPforSecondSession, fetchGradingCountforLPforThirdSession,
+    fetchGradingCountforUPforFirstSession, fetchGradingCountforUPforSecondSession, fetchGradingCountforUPforThirdSession} from "../libs/fetcher";
 import {
     LineChart,
     Line,
@@ -148,8 +148,10 @@ export default function Dashboard() {
     const { data: totalCount = {} } = useQuery(["totalCount", acayr], fetchTotalCount, { enabled: !!acayr });
     const { data: resultCountofFirstSessionLP= {} } = useQuery(["resultCountofFirstSessionLP", acayr], fetchGradingCountforLPforFirstSession, { enabled: !!acayr });
     const { data: resultCountofSecondSessionLP= {} } = useQuery(["resultCountofSecondSessionLP", acayr], fetchGradingCountforLPforSecondSession, { enabled: !!acayr });
+    const { data: resultCountofThirdSessionLP= {} } = useQuery(["resultCountofThirdSessionLP", acayr], fetchGradingCountforLPforThirdSession, { enabled: !!acayr });
     const { data: resultCountofFirstSessionUP= {} } = useQuery(["resultCountofFirstSessionUP", acayr], fetchGradingCountforUPforFirstSession, { enabled: !!acayr });
     const { data: resultCountofSecondSessionUP= {} } = useQuery(["resultCountofSecondSessionUP", acayr], fetchGradingCountforUPforSecondSession, { enabled: !!acayr });
+    const { data: resultCountofThirdSessionUP= {} } = useQuery(["resultCountofThirdSessionUP", acayr], fetchGradingCountforUPforThirdSession, { enabled: !!acayr });
     //const { data: totalStuCount } = useQuery(["totalStuCount"], fetchTotalStuCount);
 
     const { data: acayrs} = useQuery(
@@ -171,20 +173,6 @@ export default function Dashboard() {
         { name: "BWD", count: pwdStudentData.pwd_boy_count },
         { name: "GWD", count: pwdStudentData.pwd_girl_count }
     ] : [];
-    
-
-    const examDataforLowerPrimary = [
-        { name: "A", value: 100 },
-        { name: "E", value: 820 },
-        { name: "S", value: 120 }
-    ];
-
-    const examDataforUpperPrimary = [
-        { name: "A", value: 100 },
-        { name: "B", value: 820 },
-        { name: "C", value: 120 },
-        { name: "D", value: 120 }
-    ];
 
     const FirstSessionLPPieData = resultCountofFirstSessionLP ? [
       { name: "A", count: resultCountofFirstSessionLP.countA },
@@ -196,6 +184,12 @@ export default function Dashboard() {
       { name: "A", count: resultCountofSecondSessionLP.countA },
       { name: "E", count: resultCountofSecondSessionLP.countE },
       { name: "S", count: resultCountofSecondSessionLP.countS }
+    ] : [];
+
+    const ThirdSessionLPPieData = resultCountofThirdSessionLP ? [
+      { name: "A", count: resultCountofThirdSessionLP.countA },
+      { name: "E", count: resultCountofThirdSessionLP.countE },
+      { name: "S", count: resultCountofThirdSessionLP.countS }
     ] : [];
 
     const FirstSessionUPPieData = resultCountofFirstSessionUP ? [
@@ -211,6 +205,15 @@ export default function Dashboard() {
       { name: "C", count: resultCountofSecondSessionUP.countC },
       { name: "D", count: resultCountofSecondSessionUP.countD }
     ] : [];
+
+    const ThirdSessionUPPieData = resultCountofThirdSessionUP ? [
+      { name: "A", count: resultCountofThirdSessionUP.countA },
+      { name: "B", count: resultCountofThirdSessionUP.countB },
+      { name: "C", count: resultCountofThirdSessionUP.countC },
+      { name: "D", count: resultCountofThirdSessionUP.countD }
+    ] : [];
+
+    console.log("ThirdSessionUPPieData : ", ThirdSessionUPPieData);   
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -260,7 +263,7 @@ export default function Dashboard() {
                             label="Academic Year"
                             value={acayr}                                    
                             onChange={handleChange}
-                            color="secondary" focused       
+                            color="secondary" //focused                              
                             sx ={{width:200}}
                         >
                             <MenuItem value={""}></MenuItem>
@@ -547,15 +550,15 @@ export default function Dashboard() {
                                         <Tooltip />
                                         <Legend verticalAlign="bottom" />
                                         <Pie
-                                            data={examDataforLowerPrimary}
+                                            data={ThirdSessionLPPieData}
                                             innerRadius={50}
                                             outerRadius={90}
-                                            dataKey="value"
+                                            dataKey="count"
                                             nameKey="name"     
                                             label={renderCustomizedLabel("black")}    
                                             labelLine={false}   
                                         >
-                                            {examDataforLowerPrimary.map((entry, index) => (
+                                            {ThirdSessionLPPieData.map((entry, index) => (
                                                 <Cell key={index} fill={LPCOLORS[index]} />
                                             ))}
                                         </Pie>
@@ -636,15 +639,15 @@ export default function Dashboard() {
                                         <Tooltip />
                                         <Legend verticalAlign="bottom" />
                                         <Pie
-                                            data={examDataforUpperPrimary}
+                                            data={ThirdSessionUPPieData}
                                             innerRadius={50}
                                             outerRadius={90}
-                                            dataKey="value"
+                                            dataKey="count"
                                             nameKey="name"     
                                             label={renderCustomizedLabel("white")}    
                                             labelLine={false}   
                                         >
-                                            {examDataforUpperPrimary.map((entry, index) => (
+                                            {ThirdSessionUPPieData.map((entry, index) => (
                                                 <Cell key={index} fill={UPCOLORS[index]} />
                                             ))}
                                         </Pie>
@@ -693,45 +696,109 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
-                </Grid>    */}                
+                </Grid>    */}   
 
-                <Grid container spacing={2} mb={3}>                         
+                <Grid container spacing={2} mb={3}>
                     <Grid item xs={12} md={6}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 400, width: '1090px' }}>
+                        <Card
+                            elevation={2}
+                            sx={{
+                                borderRadius: 2,
+                                height: 450,
+                                width: "1090px"
+                            }}
+                        >
                             <CardContent>
-                                <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                                Kids' Club Students Count in All Learning Centers
+                                <Typography
+                                    variant="subtitle1"
+                                    fontWeight={600}
+                                    mb={2}
+                                >
+                                    Kids' Club Students Count in All Learning Centers
                                 </Typography>
 
-                                <ResponsiveContainer width="100%" height={340}>
-                                <BarChart data={kcStuCountbyLC ?? []}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis 
+                                <ResponsiveContainer width="100%" height={450}>
+                                    <BarChart
+                                        data={kcStuCountbyLC ?? []}
+                                        margin={{
+                                        top: 30,
+                                        right: 30,
+                                        left: 20,
+                                        bottom: 70
+                                        }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" />
+
+                                        <XAxis
                                         dataKey="lcname"
-                                        interval={0}           // show all labels
+                                        interval={0}
                                         tick={{ fontSize: 12 }}
-                                        angle={-45}            // rotate labels 45 degrees
-                                        textAnchor="end"       // anchor for rotated text 
+                                        angle={-45}
+                                        textAnchor="end"
                                         height={100}
-                                    />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Bar dataKey="count" barSize={35} >
-                                        <LabelList 
-                                            dataKey="count" 
+                                        />
+
+                                        <YAxis />
+                                        <Tooltip />
+                                        
+
+                                        {/* Male - bottom part */}
+                                        <Bar
+                                        dataKey="male"
+                                        name="Male"
+                                        stackId="students"                                        
+                                        barSize={45}
+                                        >
+                                        <LabelList
+                                            dataKey="male"
+                                            position="center"
+                                            fill="white"
+                                            fontSize={12}
+                                            fontWeight={600}
+                                            formatter={(value) => `M: ${value}`}
+                                        />
+                                        {(kcStuCountbyLC ?? []).map((entry, index) => (
+                                            <Cell
+                                            key={`male-${index}`}
+                                            fill={KCStuColors[index % KCStuColors.length]}
+                                            fillOpacity={0.55}
+                                            />
+                                        ))}
+                                        </Bar>
+
+                                        {/* Female - top part */}
+                                        <Bar
+                                        dataKey="female"
+                                        name="Female"
+                                        stackId="students"                                        
+                                        barSize={45}
+                                        >
+                                        <LabelList
+                                            dataKey="female"
+                                            position="center"
+                                            fill="white"
+                                            fontSize={12}
+                                            fontWeight={600}
+                                            formatter={(value) => `F: ${value}`}
+                                        />
+
+                                        {/* <LabelList
+                                            dataKey="count"
                                             position="top"
                                             fill="black"
                                             fontSize={12}
-                                            fontWeight={600}/>
+                                            fontWeight={700}
+                                        /> */}
+
                                         {(kcStuCountbyLC ?? []).map((entry, index) => (
                                             <Cell
-                                                key={index}
-                                                fill={KCStuColors [index]}                                                
+                                            key={`female-${index}`}
+                                            fill={KCStuColors[index % KCStuColors.length]}                                            
                                             />
                                         ))}
-                                    </Bar>
-                                </BarChart>
-                                </ResponsiveContainer>
+                                        </Bar>
+                                    </BarChart>
+                                    </ResponsiveContainer>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -739,7 +806,7 @@ export default function Dashboard() {
 
                 <Grid container spacing={2} mb={3}>                         
                     <Grid item xs={12} md={6}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 400, width: '1090px' }}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 450, width: '1090px' }}>
                             <CardContent>
                                 <Typography variant="subtitle1" fontWeight={600} mb={2}>
                                     Students Count in All Learning Centers

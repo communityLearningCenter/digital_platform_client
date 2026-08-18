@@ -283,7 +283,7 @@ export default function Register() {
                             {/* Learning Center */}
                             <Autocomplete
                                 options={learningcenters || []}
-                                value={selectedLC}   // add this line
+                                value={selectedLC}
                                 getOptionLabel={(option) => option.lcname}
                                 filterOptions={filterOptions}
                                 onChange={(event, value) => setSelectedLC(value)}

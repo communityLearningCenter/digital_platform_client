@@ -74,6 +74,34 @@ export async function fetchAllStudentsByLC(lcID){
     return res.json();
 }
 
+export async function fetchAllStudentsbyAcaYr(acayr){
+    const token = getToken();    
+    const res = await fetch(`${api}/students?acayr=${encodeURIComponent(acayr)}`, {
+        headers:{
+            Authorization:`Bearer ${token}`,
+        },
+    });
+    if (!res.ok) {
+        const text = await res.text(); // Read text to inspect error
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
+export async function fetchAllStudentsByLCandAcaYr(lcID, acayr){
+    const token = getToken();    
+    const res = await fetch(`${api}/learningcenters/${lcID}/students?acayr=${encodeURIComponent(acayr)}`, {
+        headers:{
+            Authorization:`Bearer ${token}`,
+        },
+    });
+    if (!res.ok) {
+        const text = await res.text(); // Read text to inspect error
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
 export async function fetchStudent(id){
     const token = getToken();    
     const res = await fetch(`${api}/registration/id/${id}`, {
@@ -462,6 +490,21 @@ export async function fetchGradingCountforLPforSecondSession({queryKey}){
     return res.json();
 }
 
+export async function fetchGradingCountforLPforThirdSession({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
+    const token = getToken();    
+    const res = await fetch(`${api}/gradingCountforLPforThirdSession?acayr=${encodeURIComponent(acayr)}`, {
+        headers:{
+            Authorization:`Bearer ${token}`,
+        },
+    });
+    if (!res.ok) {
+        const text = await res.text(); // Read text to inspect error
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
 export async function fetchGradingCountforUPforFirstSession({queryKey}){
     const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();    
@@ -482,6 +525,21 @@ export async function fetchGradingCountforUPforSecondSession({queryKey}){
     const [_key, acayr] = queryKey;   // get academic year
     const token = getToken();    
     const res = await fetch(`${api}/gradingCountforUPforSecondSession?acayr=${encodeURIComponent(acayr)}`, {
+        headers:{
+            Authorization:`Bearer ${token}`,
+        },
+    });
+    if (!res.ok) {
+        const text = await res.text(); // Read text to inspect error
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
+export async function fetchGradingCountforUPforThirdSession({queryKey}){
+    const [_key, acayr] = queryKey;   // get academic year
+    const token = getToken();    
+    const res = await fetch(`${api}/gradingCountforUPforThirdSession?acayr=${encodeURIComponent(acayr)}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },

@@ -357,7 +357,7 @@ export default function StudentList() {
             label="Academic Year"
             value={acayr}
             onChange={handleChange}
-            color="secondary" focused
+            color="secondary" 
             required
             error={!acayr}
             sx={{ ml: 134, mb: 4, width: 200, borderRadius: 2, backgroundColor: "banner" }}>

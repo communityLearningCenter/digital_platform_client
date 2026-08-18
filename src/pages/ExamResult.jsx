@@ -21,7 +21,7 @@ import {
 
 import { useState, useEffect } from "react"; 
 import { useMutation, useQuery } from "react-query";
-import { fetchLCsbyUser, fetchAllStudents, fetchAllStudentsByLC, postExamResults } from "../libs/fetcher";
+import { fetchLCsbyUser, fetchAllStudentsbyAcaYr, fetchAllStudentsByLCandAcaYr, postExamResults } from "../libs/fetcher";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../ThemedApp";
 
@@ -49,13 +49,17 @@ export default function ExamResults() {
     const navigate = useNavigate();
 
     //const {data: students, isLoading, error: fetchError} = useQuery("students", fetchAllStudents);
-    const fetchFn = auth?.role === "System Admin" ? fetchAllStudents : fetchAllStudentsByLC;
+    const fetchFn = auth?.role === "System Admin" ? fetchAllStudentsbyAcaYr : fetchAllStudentsByLCandAcaYr;
     
     const { isLoading, isError, error, data: students } = useQuery(
-        ["students", auth?.role, auth?.learningCenterId], // query key
-        () => fetchFn(auth?.learningCenterId),            // pass LC ID for restricted fetch
-        { enabled: !!auth }                               // only run if auth is ready
-    );
+        ["students", auth?.role, auth?.learningCenterId, acayr], // query key
+        () => auth?.role === "System Admin"
+            ? fetchFn(acayr)
+            : fetchFn(auth?.learningCenterId, acayr),
+            {
+                enabled: !!auth && !!acayr
+            }          // only run if auth is ready
+        );
 
     const { data: learningcenters} = useQuery(
         ["learningcenters", auth?.id],         // query key
@@ -95,6 +99,7 @@ export default function ExamResults() {
         switch (name) {
             case 'acayr':
                 setAcaYr(value);
+                setSelectedStudent(null);
                 break;
             case 'session':
                 setSession(value);
@@ -179,7 +184,7 @@ export default function ExamResults() {
                                 id="formAcaYr"
                                 label="Academic Year"
                                 value={acayr}
-                                color="secondary" focused   
+                                color="secondary"                                
                                 onChange={handleFormChange}
                             >
                                 <MenuItem value=""></MenuItem>
@@ -193,10 +198,11 @@ export default function ExamResults() {
                         <Autocomplete
                             options={students || []}
                             label = "Student"
+                            getOptionKey={(option) => option.id}
                             getOptionLabel={(option) => option.name}
                             filterOptions={filterOptions}
                             onChange={(event, value) => setSelectedStudent(value)}
-                            color='secondary' focused
+                            color='secondary'                             
                             renderInput={(params) => (
                                 <TextField {...params} label="Student Name" variant="outlined" fullWidth />
                             )}
@@ -211,8 +217,8 @@ export default function ExamResults() {
                                 id="formGrade"
                                 value={grade}
                                 label="Grade"                                
-                                color="secondary" focused   
-                                disabled="true"
+                                color="secondary"                                  
+                                disabled={true}
                                 fullWidth>
                                 <MenuItem value={""}></MenuItem>
                                 <MenuItem value={"KG"}>KG</MenuItem>
@@ -226,6 +232,8 @@ export default function ExamResults() {
                                 <MenuItem value={"G-8"}>G-8</MenuItem>
                                 <MenuItem value={"G-9"}>G-9</MenuItem>
                                 <MenuItem value={"G-10"}>G-10</MenuItem> 
+                                <MenuItem value={"G-11"}>G-11</MenuItem> 
+                                <MenuItem value={"G-12"}>G-12</MenuItem>                                 
                             </Select>
                         </FormControl>
                         {/* Session */}
@@ -236,7 +244,7 @@ export default function ExamResults() {
                                 labelId="LabelSession"
                                 id="formSession"
                                 label="Session"
-                                color='secondary' focused
+                                color='secondary'                                
                                 value={session}
                                 onChange={handleFormChange}
                             >
