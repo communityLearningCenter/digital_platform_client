@@ -137,8 +137,8 @@ const renderCustomizedLabel = (labelColor = "black") => {
 export default function Dashboard() {
     const theme = useTheme();
     const queryClient = useQueryClient();
-    const [acayr, setAcaYr] = useState("");
     const [selectedAcaYr, setSelectedAcaYr] = useState(null);
+    const acayr = selectedAcaYr?.acaYr || "";
     const { data: stuCountbyGender } = useQuery(["stuCountbyGender", acayr], fetchStuCountbyGender, { enabled: !!acayr });
     const { data: stuCountbyEnrollStatus } = useQuery(["stuCountbyEnrollStatus", acayr], fetchStudentbyEnrollStatus, { enabled: !!acayr });
     const { data: pwdStudentData} = useQuery(["pwdStudentData", acayr], fetchPWDStuCountbyGender, {enabled: !!acayr});
@@ -213,21 +213,6 @@ export default function Dashboard() {
       { name: "D", count: resultCountofThirdSessionUP.countD }
     ] : [];
 
-    console.log("ThirdSessionUPPieData : ", ThirdSessionUPPieData);   
-
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-
-        switch (name) {            
-            case 'acayr':
-                //setSelectedAcaYr(value);
-                setAcaYr(value);
-                break;
-            default:
-                break;
-        }
-    };
-
     useEffect(() => {
         queryClient.invalidateQueries();
     }, [selectedAcaYr]);
@@ -243,35 +228,19 @@ export default function Dashboard() {
                         borderRadius: 2, borderBottom: "1px solid #e0e0e0",
                     }}>
 
-                    {/*<Autocomplete                        
+                    <Autocomplete                        
                         options={acayrs || []}
                         value={selectedAcaYr}   // add this line
-                        getOptionLabel={(option) => option.acaYr}
+                        getOptionLabel={(option) => option?.acaYr || ""}
+                        isOptionEqualToValue={(option, value) =>
+                            option.acaYr === value.acaYr
+                        }
                         filterOptions={filterOptions}
-                        onChange={(event, value) => setSelectedAcaYr(value)}   
+                        onChange={(event, value) => {setSelectedAcaYr(value);}}   
                         renderInput={(params) => (
                             <TextField {...params} label="Academic Year" variant="outlined" sx={{width:200, m:1}} />
                         )}
-                    />*/}
-                    
-                    <FormControl color="secondary" sx={{m:1}}>
-                        <InputLabel id="LabelAcaYr">Academic Year</InputLabel>
-                        <Select 
-                            name="acayr"
-                            labelId="LabelAcaYr" 
-                            id="formAcaYr"
-                            label="Academic Year"
-                            value={acayr}                                    
-                            onChange={handleChange}
-                            color="secondary" //focused                              
-                            sx ={{width:200}}
-                        >
-                            <MenuItem value={""}></MenuItem>
-                            <MenuItem value={"2024 - 2025"}>2024 - 2025</MenuItem>
-                            <MenuItem value={"2025 - 2026"}>2025 - 2026</MenuItem>  
-                            <MenuItem value={"2026 - 2027"}>2026 - 2027</MenuItem>                               
-                        </Select>
-                    </FormControl>
+                    />
                 </Box>
 
                 {/* ===== Stats Row ===== */}
@@ -782,13 +751,13 @@ export default function Dashboard() {
                                             formatter={(value) => `F: ${value}`}
                                         />
 
-                                        {/* <LabelList
+                                        <LabelList
                                             dataKey="count"
                                             position="top"
                                             fill="black"
-                                            fontSize={12}
+                                            fontSize={15}
                                             fontWeight={700}
-                                        /> */}
+                                        />
 
                                         {(kcStuCountbyLC ?? []).map((entry, index) => (
                                             <Cell
@@ -804,7 +773,113 @@ export default function Dashboard() {
                     </Grid>
                 </Grid>     
 
-                <Grid container spacing={2} mb={3}>                         
+                <Grid container spacing={2} mb={3}>
+                    <Grid item xs={12} md={6}>
+                        <Card
+                            elevation={2}
+                            sx={{
+                                borderRadius: 2,
+                                height: 450,
+                                width: "1090px"
+                            }}
+                        >
+                            <CardContent>
+                                <Typography
+                                    variant="subtitle1"
+                                    fontWeight={600}
+                                    mb={2}
+                                >
+                                    Students Count in All Learning Centers
+                                </Typography>
+
+                                <ResponsiveContainer width="100%" height={450}>
+                                    <BarChart
+                                        data={stuCountbyLC ?? []}
+                                        margin={{
+                                        top: 30,
+                                        right: 30,
+                                        left: 20,
+                                        bottom: 70
+                                        }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" />
+
+                                        <XAxis
+                                        dataKey="lcname"
+                                        interval={0}
+                                        tick={{ fontSize: 12 }}
+                                        angle={-45}
+                                        textAnchor="end"
+                                        height={100}
+                                        />
+
+                                        <YAxis />
+                                        <Tooltip />
+                                        
+
+                                        {/* Male - bottom part */}
+                                        <Bar
+                                        dataKey="male"
+                                        name="Male"
+                                        stackId="students1"                                        
+                                        barSize={45}
+                                        >
+                                        <LabelList
+                                            dataKey="male"
+                                            position="center"
+                                            fill="white"
+                                            fontSize={12}
+                                            fontWeight={600}
+                                            formatter={(value) => `M: ${value}`}
+                                        />
+                                        {(stuCountbyLC ?? []).map((entry, index) => (
+                                            <Cell
+                                            key={`male-${index}`}
+                                            fill={AllStuColors[index % AllStuColors.length]}
+                                            fillOpacity={0.55}
+                                            />
+                                        ))}
+                                        </Bar>
+
+                                        {/* Female - top part */}
+                                        <Bar
+                                        dataKey="female"
+                                        name="Female"
+                                        stackId="students1"                                        
+                                        barSize={45}
+                                        >
+                                        <LabelList
+                                            dataKey="female"
+                                            position="center"
+                                            fill="white"
+                                            fontSize={12}
+                                            fontWeight={600}
+                                            formatter={(value) => `F: ${value}`}
+                                        />
+
+                                        <LabelList
+                                            dataKey="count"
+                                            position="top"
+                                            fill="black"
+                                            fontSize={15}
+                                            fontWeight={700}
+                                        />
+
+                                        {(stuCountbyLC ?? []).map((entry, index) => (
+                                            <Cell
+                                            key={`female-${index}`}
+                                            fill={AllStuColors[index % AllStuColors.length]}                                            
+                                            />
+                                        ))}
+                                        </Bar>
+                                    </BarChart>
+                                    </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>  
+
+                {/* <Grid container spacing={2} mb={3}>                         
                     <Grid item xs={12} md={6}>
                         <Card elevation={2} sx={{ borderRadius: 2, height: 450, width: '1090px' }}>
                             <CardContent>
@@ -830,7 +905,7 @@ export default function Dashboard() {
                                             dataKey="count" 
                                             position="top"
                                             fill="black"
-                                            fontSize={12}
+                                            fontSize={15}
                                             fontWeight={600}/>
                                         {(stuCountbyLC ?? []).map((entry, index) => (
                                             <Cell
@@ -844,7 +919,7 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
-                </Grid>                 
+                </Grid>                  */}
                 
             </Box>
         </Container>
