@@ -12,6 +12,7 @@ import {
     Button,
     IconButton,
     LinearProgress,
+    CircularProgress,
     Fab,
     Dialog,
     DialogTitle,
@@ -45,11 +46,13 @@ export default function TeachingMaterials() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploading, setUploading] = useState(false);
+    const [uploadError, setUploadError] = useState("");
     //const [uploadedFiles, setUploadedFiles] = useState([]);
     const [openUploadDialog, setOpenUploadDialog] = useState(false);
     const [topic, setTopic] = useState("");
     const [module, setModule] = useState("");
     const fileInputRef = useRef(null);
+    const [downloadingFileId, setDownloadingFileId] = useState(null);
     const { auth } = useApp();
 
     const {
@@ -139,12 +142,18 @@ export default function TeachingMaterials() {
 
         if(invalidFiles.length > 0){
 
-            alert(
+            /*alert(
                 `Invalid file type:\n${invalidFiles
                     .map(file=>file.name)
                     .join("\n")}
 
                 Allowed files: PDF, DOC, DOCX, PPT, PPTX`
+            );*/
+
+            setUploadError(
+                `Invalid file type:\n${invalidFiles
+                    .map(file => file.name)
+                    .join("\n")}\n\nAllowed files: PDF, DOC, DOCX, PPT, PPTX`
             );
 
         // clear selected file
@@ -178,12 +187,13 @@ export default function TeachingMaterials() {
 
                 if (xhr.status === 200) {
                     refetch();
-                    setOpenUploadDialog(false);
+                    handleCloseUploadDialog();
                 }
             };
 
             xhr.onerror = () => {
                 setUploading(false);
+                setUploadProgress(0);
                 console.error("Upload failed");
             };
 
@@ -249,8 +259,13 @@ export default function TeachingMaterials() {
                 <IconButton
                     onClick={() => handleDownload(params.row)}
                     color="success"
+                    disabled={downloadingFileId === params.row.id}
                 >
-                    <FileDownloadIcon />
+                    {downloadingFileId === params.row.id ? (
+                        <CircularProgress size={24} />
+                    ) : (
+                        <FileDownloadIcon />
+                    )}
                 </IconButton>
             ),
         },
@@ -278,6 +293,7 @@ export default function TeachingMaterials() {
     const handleDownload = async (file) => {
         try {
             //const response = await fetch(file.url);
+            setDownloadingFileId(file.id);
             const response = await fetch(`${api}/download/${file.id}`)
 
             if (!response.ok) {
@@ -298,7 +314,9 @@ export default function TeachingMaterials() {
             window.URL.revokeObjectURL(blobUrl);
         } catch (error) {
             console.error("Download error:", error);
-        }
+        } finally {
+        setDownloadingFileId(null);
+    }
     };
 
     const handleDelete = async (file) => {
@@ -329,6 +347,15 @@ export default function TeachingMaterials() {
 
     const handleCloseUploadDialog = () => {
         setOpenUploadDialog(false);
+        setTopic("");
+        setModule("");
+        setUploadProgress(0);
+        setUploading(false);
+        setUploadError("");
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     };
 
     if (isError) {
@@ -522,6 +549,12 @@ export default function TeachingMaterials() {
                     {error && (
                         <Alert severity="warning" sx={{ mb: 2 }}>
                             {error}
+                        </Alert>
+                    )}
+
+                    {uploadError && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                            {uploadError}
                         </Alert>
                     )}
 
