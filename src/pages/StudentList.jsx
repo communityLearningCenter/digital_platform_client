@@ -9,6 +9,7 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import * as XLSX from "xlsx";
 //import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import i18n from "i18next";
 import {
 
   Box,
@@ -30,9 +31,12 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import DownloadIcon from '@mui/icons-material/Download';
 import { DataGrid } from "@mui/x-data-grid";
+import { useTranslation } from "react-i18next";
 
 export default function StudentList() {
   //const { isLoading, isError, error, data } = useQuery("students", fetchAllStudents);
+
+  const { t } = useTranslation();
 
   const [page, setPage] = useState(0);
   const { auth } = useApp();
@@ -149,26 +153,26 @@ export default function StudentList() {
 
   const columns = [
     //{ field: "id", headerName: "ID", width: 90, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "lcname", headerName: "Learning Center", width: 160, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "acayr", headerName: "Academic Year", width: 140, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "name", headerName: "Name", width: 140, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "stuID", headerName: "Student ID", width: 130, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "grade", headerName: "Grade", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "gender", headerName: "Gender", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "pwd", headerName: "PWD", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "pwd_type", headerName: "PWD Types", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "guardianName", headerName: "Guardian Name", width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "guardianNRC", headerName: "Guardian NRC", width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "guardianType", headerName: "Guardian Type", width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "familyMember", headerName: "Family Members", width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "over18Male", headerName: "Over 18 (Male)", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "over18Female", headerName: "Over 18 (Female)", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "under18Male", headerName: "Under 18 (Male)", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "under18Female", headerName: "Under 18 (Female)", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "stuStatus", headerName: "Student Status", width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "acaReview", headerName: "Academic Review", width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "kidsClubStu", headerName: "Kid's Club Student", width: 160, headeralign: 'center', headerClassName: "super-app-theme--header" },
-    { field: "dropoutStu", headerName: "Dropout Student", width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "lcname", headerName: t("stuReg.lcname"), width: 160, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "acayr", headerName: t("stuReg.academicyr"), width: 160, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "name", headerName: t("stuReg.stuName"), width: 140, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "stuID", headerName: t("stuReg.stuID"), width: 130, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "grade", headerName: t("stuReg.grade"), width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "gender", headerName: t("stuReg.gender"), width: 100, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "pwd", headerName: t("stuReg.pwd"), width: 120, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "pwd_type", headerName: t("stuReg.pwdtypes"), width: 130, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "guardianName", headerName: t("stuReg.guardianName"), width: 170, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "guardianNRC", headerName: t("stuReg.guardianNRC"), width: 190, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "guardianType", headerName: t("stuReg.guardianType"), width: 190, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "familyMember", headerName: t("stuReg.familymemeberCount"), width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "over18Male", headerName: t("stuList.over18Male"), width: 140, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "over18Female", headerName: t("stuList.over18Female"), width: 120, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "under18Male", headerName: t("stuList.under18Male"), width: 140, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "under18Female", headerName: t("stuList.under18Female"), width: 120, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "stuStatus", headerName: t("stuReg.studentStatus"), width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "acaReview", headerName: t("stuReg.academicReview"), width: 150, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "kidsClubStu", headerName: t("stuReg.kidsclubStudent"), width: 180, headeralign: 'center', headerClassName: "super-app-theme--header" },
+    { field: "dropoutStu", headerName: t("stuReg.dropoutStudent"), width: 200, headeralign: 'center', headerClassName: "super-app-theme--header" },
     {
       field: "actions", headerName: "Actions", width: 120, headeralign: 'center', headerClassName: "super-app-theme--header",
       renderCell: (params) => (
@@ -336,20 +340,37 @@ export default function StudentList() {
         <Typography
           variant="h4"
           sx={{
-            pl: 2,
-            pt: 1,
+            px: 1,
+            mt:-2,
             color: "#ef6c00",
             backgroundColor: "banner",
             borderRadius: 5,
-            height: 80,
-            width: 250,
+            minHeight: 80,
+            width: 280,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            lineHeight: 1,
+            whiteSpace: "nowrap",
+            fontSize: i18n.language === "my" ? "1.8rem" : "2.125rem",
+
+            // pl: 2,
+            // pt: 1,
+            // color: "#ef6c00",
+            // backgroundColor: "banner",
+            // borderRadius: 5,
+            // minHeight: 80,
+            // width: 250,
+            // whiteSpace: "normal",
+            // wordBreak: "break-word",
           }}
         >
-          Student List
+          {t("stuList.tabTitle")}
         </Typography>
 
         <FormControl fullWidth color="secondary">
-          <InputLabel id="LabelAcaYr" sx={{ ml: 137, mb: 4 }}>Academic Year</InputLabel>
+          <InputLabel id="LabelAcaYr" sx={{ ml: 133, mb: 4 }}>{t("stuReg.academicyr")}</InputLabel>
           <Select
             name="acayr"
             labelId="LabelAcaYr"
@@ -369,7 +390,7 @@ export default function StudentList() {
         </FormControl>
       </Box>
 
-      <Box
+      {/* <Box
         sx={{
           mt: -5,
           height: 605,
@@ -383,11 +404,47 @@ export default function StudentList() {
           "& .MuiDataGrid-columnHeaderTitle": {
             whiteSpace: "normal !important",
             lineHeight: "1.2 !important",
-            textAlign: "center",
+            textAlign: "center", 
           },
           "& .MuiDataGrid-columnHeader": {
             alignItems: "center !important",
-            padding: "8px !important",
+            padding: "8px !important"            
+          },
+        }}
+      > */}
+
+      <Box
+        sx={{
+          mt: -5,
+          height: 605,
+          width: "100%",
+
+          "& .super-app-theme--header": {
+            color: "#673ab7",
+            fontSize: "1rem",
+            backgroundColor: "banner !important",
+          },
+
+          "& .MuiDataGrid-columnHeaders": {
+            minHeight: "80px !important",
+            maxHeight: "80px !important",
+            height: "80px !important",
+          },
+
+          "& .MuiDataGrid-columnHeader": {
+            minHeight: "80px !important",
+            maxHeight: "80px !important",
+            height: "80px !important",
+            alignItems: "center !important",
+            padding: "18px !important",
+          },
+
+          "& .MuiDataGrid-columnHeaderTitle": {
+            whiteSpace: "normal !important",
+            lineHeight: "1.3 !important",
+            textAlign: "center",
+            width: "100%",
+            overflow: "visible !important",
           },
         }}
       >

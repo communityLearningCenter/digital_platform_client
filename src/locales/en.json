@@ -79,5 +79,13 @@
         "no": "No",
         "submit": "Submit",
         "clear": "Clear"
+    },
+
+    "stuList":{
+        "tabTitle": "Student List",
+        "over18Male":"Over 18 (Male)",
+        "over18Female":"Over 18 (Female)",
+        "under18Male":"Under 18 (Male)",
+        "under18Female":"Under 18 (Female)"
     }
 }

@@ -23,11 +23,11 @@ export default function Header() {
     const { t, i18n } = useTranslation();
 
     const handleLanguageChange = (event) => {
-    const lang = event.target.value;
+        const lang = event.target.value;
 
-    i18n.changeLanguage(lang);
-    localStorage.setItem("language", lang);
-};
+        i18n.changeLanguage(lang);
+        localStorage.setItem("language", lang);
+    };
 
     return(
         // <AppBar position="static" sx={{ height: 120 }}>
