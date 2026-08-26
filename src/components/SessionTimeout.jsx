@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useApp } from "../ThemedApp";
 
 export default function SessionTimeout({
-  timeout = 30 * 60 * 1000,
+  timeout =  30 * 60 * 1000,
 }) {
   const navigate = useNavigate();
   const { logout } = useApp();

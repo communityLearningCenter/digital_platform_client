@@ -2,12 +2,14 @@ import {Box, Snackbar} from "@mui/material";
 import {Outlet} from "react-router-dom";
 import Header from "./components/Header";
 import AppDrawer from "./components/AppDrawer";
+import SessionTimeout from "./components/SessionTimeout";
 import {useApp} from "./ThemedApp";
 
 export default function Template(){
     const {globalMsg, setGlobalMsg} = useApp();
     return(
         <Box>
+            <SessionTimeout/>
             <Header/>
             <AppDrawer/>            
             <Outlet/>            

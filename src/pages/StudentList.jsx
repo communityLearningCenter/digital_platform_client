@@ -354,23 +354,13 @@ export default function StudentList() {
             lineHeight: 1,
             whiteSpace: "nowrap",
             fontSize: i18n.language === "my" ? "1.8rem" : "2.125rem",
-
-            // pl: 2,
-            // pt: 1,
-            // color: "#ef6c00",
-            // backgroundColor: "banner",
-            // borderRadius: 5,
-            // minHeight: 80,
-            // width: 250,
-            // whiteSpace: "normal",
-            // wordBreak: "break-word",
           }}
         >
           {t("stuList.tabTitle")}
         </Typography>
 
         <FormControl fullWidth color="secondary">
-          <InputLabel id="LabelAcaYr" sx={{ ml: 133, mb: 4 }}>{t("stuReg.academicyr")}</InputLabel>
+          <InputLabel id="LabelAcaYr" sx={{ ml: 125, mb: 4 }}>{t("stuReg.academicyr")}</InputLabel>
           <Select
             name="acayr"
             labelId="LabelAcaYr"
@@ -381,7 +371,7 @@ export default function StudentList() {
             color="secondary" 
             required
             error={!acayr}
-            sx={{ ml: 134, mb: 4, width: 200, borderRadius: 2, backgroundColor: "banner" }}>
+            sx={{ ml: 126, mb: 4, width: 209, borderRadius: 2, backgroundColor: "banner" }}>
             <MenuItem value={""}>All</MenuItem>
             <MenuItem value={"2024 - 2025"}>2024 - 2025</MenuItem>
             <MenuItem value={"2025 - 2026"}>2025 - 2026</MenuItem>
@@ -389,29 +379,6 @@ export default function StudentList() {
           </Select>
         </FormControl>
       </Box>
-
-      {/* <Box
-        sx={{
-          mt: -5,
-          height: 605,
-          width: "100%",
-          "& .super-app-theme--header": {
-            color: "#673ab7",
-            fontSize: "1.1rem",
-            backgroundColor: "banner !important"
-          },
-          // Wrap long header text
-          "& .MuiDataGrid-columnHeaderTitle": {
-            whiteSpace: "normal !important",
-            lineHeight: "1.2 !important",
-            textAlign: "center", 
-          },
-          "& .MuiDataGrid-columnHeader": {
-            alignItems: "center !important",
-            padding: "8px !important"            
-          },
-        }}
-      > */}
 
       <Box
         sx={{

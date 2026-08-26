@@ -31,11 +31,14 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { useRef } from "react";
 import { useApp } from "../ThemedApp";
+import { useTranslation } from "react-i18next";
 
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import i18n from "i18next";
+
 
 const api = import.meta.env.VITE_API_URL;
 
@@ -54,6 +57,7 @@ export default function TeachingMaterials() {
     const fileInputRef = useRef(null);
     const [downloadingFileId, setDownloadingFileId] = useState(null);
     const { auth } = useApp();
+     const { t } = useTranslation();
 
     const {
         data: fileData = [],
@@ -141,15 +145,6 @@ export default function TeachingMaterials() {
         });
 
         if(invalidFiles.length > 0){
-
-            /*alert(
-                `Invalid file type:\n${invalidFiles
-                    .map(file=>file.name)
-                    .join("\n")}
-
-                Allowed files: PDF, DOC, DOCX, PPT, PPTX`
-            );*/
-
             setUploadError(
                 `Invalid file type:\n${invalidFiles
                     .map(file => file.name)
@@ -236,13 +231,7 @@ export default function TeachingMaterials() {
             headerName: "Topic",
             headerClassName: "super-app-theme--header",
             width: 150,
-        },
-        // {
-        //     field: "module",
-        //     headerName: "Module",
-        //     headerClassName: "super-app-theme--header",
-        //     width: 150,
-        // },    
+        },  
         {
             field: "uploadedDate",
             headerName: "Uploaded At",
@@ -386,17 +375,17 @@ export default function TeachingMaterials() {
                     backgroundColor: "banner",
                     borderRadius: 5,
                     height: 80,
-                    width: 330,
+                    width: 365,
                 }}
             >
-                Teaching Materials
+                {t("teachingmaterials")}
             </Typography>
 
             <Box
                 sx={{
                     mt: -5,
                     height: 605,
-                    width: "100%",
+                    width: "100%",                   
                     "& .super-app-theme--header": {
                         color: "#673ab7",
                         fontSize: "1.1rem",
@@ -407,7 +396,7 @@ export default function TeachingMaterials() {
                 {
                     Object.entries(groupedFiles).map(
                         ([topicName, modules]) => (
-                            <Accordion key={topicName} defaultExpanded>
+                            <Accordion sx={{ backgroundColor: "banner"}} key={topicName} defaultExpanded>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                 >
@@ -441,6 +430,7 @@ export default function TeachingMaterials() {
                                                             columns={columns}
                                                             hideFooter
                                                             loading={fileLoading}
+                                                            
                                                         />
                                                     </Box>
                                                 </AccordionDetails>
@@ -452,71 +442,7 @@ export default function TeachingMaterials() {
                             </Accordion>
                         )
                     )
-                }
-
-                {/* <DataGrid
-                rows={paginatedRows}
-                columns={columns}
-                pagination={false}
-                disableSelectionOnClick
-                hideFooter
-                sx={{ p:2, borderRadius: 2, backgroundColor: "banner"}}
-                loading={fileLoading}                        
-                />                
-
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        p: 1,
-                        backgroundColor: "banner",
-                        borderTop: "1px solid",
-                        borderRadius: 1,
-                        mt: -0.5,
-                        alignItems: "center",
-                    }}
-                >
-                    <FormControl size="small">
-                        <InputLabel id="rows-per-page-label">Rows</InputLabel>
-                        <Select
-                        labelId="rows-per-page-label"
-                        value={rowsPerPage}
-                        label="Rows per page"
-                        onChange={handleChangeRowsPerPage}>
-                        {[5, 10, 20, 50].map((option) => (
-                        <MenuItem key={option} value={option}>
-                            {option}
-                        </MenuItem>
-                        ))}
-                        </Select>
-                    </FormControl>
-
-                    <Pagination
-                        count={Math.ceil(fileData.length / rowsPerPage)}
-                        page={page + 1}
-                        onChange={handleChangePage}
-                        size="large"
-                        sx={{
-                            "& .MuiPaginationItem-root": {
-                            color: "black",
-                            },
-                            "& .Mui-selected": {
-                            backgroundColor: "#673ab7 !important",
-                            color: "#fff",
-                            },
-                        }}
-                    />
-                </Box>  */}
-
-                {/* <Button variant="contained" component="label">
-                        Upload Documents
-                        <input
-                        type="file"
-                        hidden
-                        multiple
-                        onChange={handleDocumentUpload}
-                        />
-                    </Button> */}
+                }                
             </Box>
 
             {auth?.role === "System Admin" && (
