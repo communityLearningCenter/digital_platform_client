@@ -17,6 +17,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import SchoolIcon from "@mui/icons-material/School";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import { useApp } from "../ThemedApp";
 import { useQueryClient, useQuery } from "react-query";
 import { useEffect, useState } from "react"; 
 import { createFilterOptions } from "@mui/material/Autocomplete";
@@ -41,11 +42,12 @@ import {
     LabelList
 } from "recharts";
 
+
 const GenderColors = ["#6ab2ec", "#f56e9d"]
 const EnrolledStatusColors = ["#92d1d1", "#f7f097"]
 const LPCOLORS = ["#AED581", "#81D4FA", "#F8BBD0"];
 const UPCOLORS = ["#8b9a3e", "#ae928d", "#C86464", "#AAB4C8"];
-const GradeColors = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#abd9ce"]
+const GradeColors = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#abd9ce", "#f055a5"]
 const KCStuColors =["#f08621", "#e36888", "#b4b534", "#6698cc", "#bfdff3", "#ff9b28", "#ccd537", "#f055a5", "#fabe37", "#7a88fe", "#ff4040", "#ecade7ff", "#7fe0dcff"]
 const AllStuColors =["#b8f079", "#bdaceb", "#f3ced6", "#6698cc", "#a6dde4", "#daa281", "#558a2a", "#df74ab", "#4658a8", "#86aa94", "#973838", "rgb(201, 166, 114)", "rgb(224, 127, 211)"]
 const PWDStudentColors = ["#6698cc","#e36888"]
@@ -135,19 +137,22 @@ const renderCustomizedLabel = (labelColor = "black") => {
         };
     };
 
-export default function Dashboard() {
+export default function LCDashboard() {
+    const { auth } = useApp();
     const theme = useTheme();
     const queryClient = useQueryClient();
     const [selectedAcaYr, setSelectedAcaYr] = useState(null);
     const acayr = selectedAcaYr?.acaYr || "";
-    const { data: stuCountbyGender } = useQuery(["stuCountbyGender", acayr], fetchStuCountbyGender, { enabled: !!acayr });
-    const { data: stuCountbyEnrollStatus } = useQuery(["stuCountbyEnrollStatus", acayr], fetchStudentbyEnrollStatus, { enabled: !!acayr });
+    console.log("learning center : ", auth.learningCenterId);
+    const { data: stuCountbyGender } = useQuery(["stuCountbyGender", acayr, auth?.learningCenterId], fetchStuCountbyGender, { enabled: !!acayr && !!auth?.learningCenterId, });
+    const { data: stuCountbyEnrollStatus } = useQuery(["stuCountbyEnrollStatus", acayr, auth?.learningCenterId], fetchStudentbyEnrollStatus, { enabled: !!acayr &&
+         !!auth?.learningCenterId, });
     const { data: pwdStudentData} = useQuery(["pwdStudentData", acayr], fetchPWDStuCountbyGender, {enabled: !!acayr});
-    const { data: stuCountbyGrade } = useQuery(["stuCountbyGrade", acayr], fetchStuCountbyGrade, { enabled: !!acayr });
+    const { data: stuCountbyGrade } = useQuery(["stuCountbyGrade", acayr, auth?.learningCenterId], fetchStuCountbyGrade, { enabled: !!acayr && !!auth?.learningCenterId,});
     const { data: kcStuCountbyLC } = useQuery(["kcStuCountbyLC", acayr], fetchKCStuCountbyLC, { enabled: !!acayr });
     const { data: stuCountbyLC } = useQuery(["stuCountbyLC", acayr], fetchAllStuCountbyLC, {enabled: !!acayr}); 
-    const { data: totalCount = {} } = useQuery(["totalCount", acayr], fetchTotalCount, { enabled: !!acayr });
-    const { data: teacherCountbyPosition = {} } = useQuery(["teacherCountbyPosition"], fetchTeacherCountforDashboard);
+    const { data: totalCount = {} } = useQuery(["totalCount", acayr, auth?.learningCenterId], fetchTotalCount, { enabled: !!acayr && !!auth?.learningCenterId, });
+    const { data: teacherCountbyPosition = {} } = useQuery(["teacherCountbyPosition", acayr, auth?.learningCenterId], fetchTeacherCountforDashboard, { enabled: !!acayr && !!auth?.learningCenterId, });
     const { data: resultCountofFirstSessionLP= {} } = useQuery(["resultCountofFirstSessionLP", acayr], fetchGradingCountforLPforFirstSession, { enabled: !!acayr });
     const { data: resultCountofSecondSessionLP= {} } = useQuery(["resultCountofSecondSessionLP", acayr], fetchGradingCountforLPforSecondSession, { enabled: !!acayr });
     const { data: resultCountofThirdSessionLP= {} } = useQuery(["resultCountofThirdSessionLP", acayr], fetchGradingCountforLPforThirdSession, { enabled: !!acayr });
@@ -187,7 +192,7 @@ export default function Dashboard() {
       { name: "E", count: resultCountofSecondSessionLP.countE },
       { name: "S", count: resultCountofSecondSessionLP.countS }
     ] : [];
-
+ 
     const ThirdSessionLPPieData = resultCountofThirdSessionLP ? [
       { name: "A", count: resultCountofThirdSessionLP.countA },
       { name: "E", count: resultCountofThirdSessionLP.countE },
@@ -221,7 +226,7 @@ export default function Dashboard() {
 
     return (
         <Container sx={{ mt: 20 }}>
-            <Box sx={{ p: 3, minHeight: "100vh" }}>
+            <Box sx={{ p: 3, minHeight: "100vh", width: "1300px"}}>
                 {/*<Typography variant="h5" fontWeight={600} mb={3}>
                     Dashboard
                 </Typography>*/}
@@ -249,15 +254,58 @@ export default function Dashboard() {
                 <Grid container spacing={2} mb={3}>
                     <Grid item xs={12} sm={6} md={3}>
                         <StatCard1
+                            title="Enrollment Status Count"
+                            value={totalCount.totalStuCount}
+                            subtitle= {[
+                                {label: "Old Students", value:stuCountbyEnrollStatus?.old_count ?? 0},
+                                {label: "New Students", value:stuCountbyEnrollStatus?.new_count ?? 0},                                
+                            ]}           
+                            icon={<AssessmentIcon fontSize="large" />}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard1
                             title="Count of Students"
                             value={totalCount.totalStuCount}
                             subtitle={[
                                 { label: "Male", value: stuCountbyGender?.male ?? 0 },
-                                { label: "Female", value: stuCountbyGender?.female ?? 0 }
+                                { label: "Female", value: stuCountbyGender?.female ?? 0 },
+                                { label: "Male (PWD)", value: stuCountbyGender?.male_pwd ?? 0 },
+                                { label: "Female (PWD)", value: stuCountbyGender?.female_pwd ?? 0 }
                             ]}
                             icon={<PeopleIcon fontSize="large" />}
                         />
                     </Grid>
+
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard1
+                            title="Count of Preschoolers"
+                            value={totalCount.totalPreStuCount}
+                            subtitle={[
+                                { label: "Male", value: stuCountbyGender?.preMale ?? 0 },
+                                { label: "Female", value: stuCountbyGender?.preFemale ?? 0 },
+                                { label: "Male (PWD)", value: stuCountbyGender?.preMale_pwd ?? 0 },
+                                { label: "Female (PWD)", value: stuCountbyGender?.preFemale_pwd ?? 0 }
+                            ]}
+                            icon={<AssessmentIcon fontSize="large" />}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard1
+                            title="Count of Kid's Club Students"
+                            value={totalCount.totalStuCount}
+                            subtitle={[
+                                { label: "Male", value: stuCountbyGender?.male ?? 0 },
+                                { label: "Female", value: stuCountbyGender?.female ?? 0 },
+                                { label: "Male (PWD)", value: stuCountbyGender?.male_pwd ?? 0 },
+                                { label: "Female (PWD)", value: stuCountbyGender?.female_pwd ?? 0 }
+                            ]}
+                            icon={<PeopleIcon fontSize="large" />}
+                        />
+                    </Grid>
+
                     <Grid item xs={12} sm={6} md={3}>
                         <StatCard1
                             title="Count of Teachers"
@@ -269,21 +317,7 @@ export default function Dashboard() {
                             ]}                 
                             icon={<SchoolIcon fontSize="large" />}
                         />
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                        <StatCard1
-                            title="Count of Learning Centers"
-                            value={totalCount.totalLCCount}
-                            icon={<ApartmentIcon fontSize="large" />}
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                        <StatCard1
-                            title="Count of VDCs"
-                            value="60"
-                            icon={<AssessmentIcon fontSize="large" />}
-                        />
-                    </Grid>
+                    </Grid>                      
                 </Grid>
 
                 {/* ===== Charts Row ===== */}                
@@ -367,7 +401,7 @@ export default function Dashboard() {
                     </Grid> 
                 </Grid>*/}
 
-                <Grid container spacing={2} mb={3}>
+                {/* <Grid container spacing={2} mb={3}>
                     <Grid item xs={12} md={4}>
                         <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '353px' }}>
                             <CardContent>
@@ -454,11 +488,11 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
-                </Grid>
+                </Grid> */}
 
                 <Grid container spacing={2} mb={3}>
                     <Grid item xs={12} md={4}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '353px' }}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 360, width: '393px' }}>
                             <CardContent>
                                 <Typography variant="subtitle1" fontWeight={600} mb={2}>
                                     First Session Exam Results for Lower Primary Students
@@ -487,7 +521,7 @@ export default function Dashboard() {
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '353px' }}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 360, width: '393px' }}>
                             <CardContent>
                                 <Typography variant="subtitle1" fontWeight={600} mb={2}>
                                     Second Session Exam Results for Lower Primary Students
@@ -516,7 +550,7 @@ export default function Dashboard() {
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '353px' }}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 360, width: '393px' }}>
                             <CardContent>
                                 <Typography variant="subtitle1" fontWeight={600} mb={2}>
                                     Third Session Exam Results for Lower Primary Students
@@ -547,7 +581,7 @@ export default function Dashboard() {
 
                 <Grid container spacing={2} mb={3}>                            
                     <Grid item xs={12} md={4}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '353px' }}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 360, width: '393px' }}>
                             <CardContent>
                                 <Typography variant="subtitle1" fontWeight={600} mb={2}>
                                     First Session Exam Results for Other Grades Students
@@ -576,7 +610,7 @@ export default function Dashboard() {
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '353px' }}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 360, width: '393px' }}>
                             <CardContent>
                                 <Typography variant="subtitle1" fontWeight={600} mb={2}>
                                    Second Session Exam Results for Other Grades Students
@@ -605,7 +639,7 @@ export default function Dashboard() {
                     </Grid>
 
                     <Grid item xs={12} md={4}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 350, width: '353px' }}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 360, width: '393px' }}>
                             <CardContent>
                                 <Typography variant="subtitle1" fontWeight={600} mb={2}>
                                     Third Session Exam Results for Other Grades Students
@@ -636,114 +670,49 @@ export default function Dashboard() {
 
                 
                 {/* ===== Bar Charts Row ===== */}
-                {/* <Grid container spacing={2} mb={3}>
+                <Grid container spacing={2} mb={3}>
                     <Grid item xs={12} md={6}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 400, width: '1090px' }}>
+                        <Card elevation={2} sx={{ borderRadius: 2, height: 450, width: '1210px' }}>
                             <CardContent>
                                 <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                                Students Count by Grade for All Learning Centers
+                                    Students Count by Grade
                                 </Typography>
 
-                                <ResponsiveContainer width="100%" height={300}>
+                                <ResponsiveContainer width="100%" height={450}>
                                 <BarChart 
                                     data={stuCountbyGrade ?? []}
                                     margin={{ top: 30, right: 20, left: 20, bottom: 10 }}
                                 >
                                     <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="grade" />
+                                    <XAxis dataKey="grade" interval={0} tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={100}/>
                                     <YAxis domain={[0, 'dataMax + 20']}/>
                                     <Tooltip />
-                                    <Bar dataKey="count" barSize={35} >
-                                        <LabelList 
-                                            dataKey="count" 
-                                            position="top"
-                                            fill="black"
+                                    {/* Male - bottom part */}
+                                    <Bar
+                                        dataKey="male"
+                                        name="Male"
+                                        stackId="students"                                        
+                                        barSize={45}
+                                    >
+                                        <LabelList
+                                            dataKey="male"
+                                            position="center"
+                                            fill="white"
                                             fontSize={12}
-                                            fontWeight={600}/>
+                                            fontWeight={600}
+                                            formatter={(value) => `M: ${value}`}
+                                        />
                                         {(stuCountbyGrade ?? []).map((entry, index) => (
                                             <Cell
-                                                key={index}
-                                                fill={GradeColors [index]}
-                                            />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                                </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                </Grid>    */}   
-
-                <Grid container spacing={2} mb={3}>
-                    <Grid item xs={12} md={6}>
-                        <Card
-                            elevation={2}
-                            sx={{
-                                borderRadius: 2,
-                                height: 450,
-                                width: "1090px"
-                            }}
-                        >
-                            <CardContent>
-                                <Typography
-                                    variant="subtitle1"
-                                    fontWeight={600}
-                                    mb={2}
-                                >
-                                    Kids' Club Students Count in All Learning Centers
-                                </Typography>
-
-                                <ResponsiveContainer width="100%" height={450}>
-                                    <BarChart
-                                        data={kcStuCountbyLC ?? []}
-                                        margin={{
-                                        top: 30,
-                                        right: 30,
-                                        left: 20,
-                                        bottom: 70
-                                        }}
-                                    >
-                                        <CartesianGrid strokeDasharray="3 3" />
-
-                                        <XAxis
-                                        dataKey="lcname"
-                                        interval={0}
-                                        tick={{ fontSize: 12 }}
-                                        angle={-45}
-                                        textAnchor="end"
-                                        height={100}
-                                        />
-
-                                        <YAxis />
-                                        <Tooltip />
-                                        
-
-                                        {/* Male - bottom part */}
-                                        <Bar
-                                        dataKey="male"
-                                        name="Male"
-                                        stackId="students"                                        
-                                        barSize={45}
-                                        >
-                                        <LabelList
-                                            dataKey="male"
-                                            position="center"
-                                            fill="white"
-                                            fontSize={12}
-                                            fontWeight={600}
-                                            formatter={(value) => `M: ${value}`}
-                                        />
-                                        {(kcStuCountbyLC ?? []).map((entry, index) => (
-                                            <Cell
                                             key={`male-${index}`}
-                                            fill={KCStuColors[index % KCStuColors.length]}
+                                            fill={GradeColors[index % GradeColors.length]}
                                             fillOpacity={0.55}
                                             />
                                         ))}
-                                        </Bar>
+                                    </Bar>
 
-                                        {/* Female - top part */}
-                                        <Bar
+                                    {/* Female - top part */}
+                                    <Bar
                                         dataKey="female"
                                         name="Female"
                                         stackId="students"                                        
@@ -766,158 +735,10 @@ export default function Dashboard() {
                                             fontWeight={700}
                                         />
 
-                                        {(kcStuCountbyLC ?? []).map((entry, index) => (
+                                        {(stuCountbyGrade ?? []).map((entry, index) => (
                                             <Cell
                                             key={`female-${index}`}
-                                            fill={KCStuColors[index % KCStuColors.length]}                                            
-                                            />
-                                        ))}
-                                        </Bar>
-                                    </BarChart>
-                                    </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                </Grid>     
-
-                <Grid container spacing={2} mb={3}>
-                    <Grid item xs={12} md={6}>
-                        <Card
-                            elevation={2}
-                            sx={{
-                                borderRadius: 2,
-                                height: 450,
-                                width: "1090px"
-                            }}
-                        >
-                            <CardContent>
-                                <Typography
-                                    variant="subtitle1"
-                                    fontWeight={600}
-                                    mb={2}
-                                >
-                                    Students Count in All Learning Centers
-                                </Typography>
-
-                                <ResponsiveContainer width="100%" height={450}>
-                                    <BarChart
-                                        data={stuCountbyLC ?? []}
-                                        margin={{
-                                        top: 30,
-                                        right: 30,
-                                        left: 20,
-                                        bottom: 70
-                                        }}
-                                    >
-                                        <CartesianGrid strokeDasharray="3 3" />
-
-                                        <XAxis
-                                        dataKey="lcname"
-                                        interval={0}
-                                        tick={{ fontSize: 12 }}
-                                        angle={-45}
-                                        textAnchor="end"
-                                        height={100}
-                                        />
-
-                                        <YAxis />
-                                        <Tooltip />
-                                        
-
-                                        {/* Male - bottom part */}
-                                        <Bar
-                                        dataKey="male"
-                                        name="Male"
-                                        stackId="students1"                                        
-                                        barSize={45}
-                                        >
-                                        <LabelList
-                                            dataKey="male"
-                                            position="center"
-                                            fill="white"
-                                            fontSize={12}
-                                            fontWeight={600}
-                                            formatter={(value) => `M: ${value}`}
-                                        />
-                                        {(stuCountbyLC ?? []).map((entry, index) => (
-                                            <Cell
-                                            key={`male-${index}`}
-                                            fill={AllStuColors[index % AllStuColors.length]}
-                                            fillOpacity={0.55}
-                                            />
-                                        ))}
-                                        </Bar>
-
-                                        {/* Female - top part */}
-                                        <Bar
-                                        dataKey="female"
-                                        name="Female"
-                                        stackId="students1"                                        
-                                        barSize={45}
-                                        >
-                                        <LabelList
-                                            dataKey="female"
-                                            position="center"
-                                            fill="white"
-                                            fontSize={12}
-                                            fontWeight={600}
-                                            formatter={(value) => `F: ${value}`}
-                                        />
-
-                                        <LabelList
-                                            dataKey="count"
-                                            position="top"
-                                            fill="black"
-                                            fontSize={15}
-                                            fontWeight={700}
-                                        />
-
-                                        {(stuCountbyLC ?? []).map((entry, index) => (
-                                            <Cell
-                                            key={`female-${index}`}
-                                            fill={AllStuColors[index % AllStuColors.length]}                                            
-                                            />
-                                        ))}
-                                        </Bar>
-                                    </BarChart>
-                                    </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                </Grid>  
-
-                {/* <Grid container spacing={2} mb={3}>                         
-                    <Grid item xs={12} md={6}>
-                        <Card elevation={2} sx={{ borderRadius: 2, height: 450, width: '1090px' }}>
-                            <CardContent>
-                                <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                                    Students Count in All Learning Centers
-                                </Typography>
-
-                                <ResponsiveContainer width="100%" height={340}>
-                                <BarChart data={stuCountbyLC ?? []}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis 
-                                        dataKey="lcname"
-                                        interval={0}           // show all labels
-                                        tick={{ fontSize: 12 }}
-                                        angle={-45}            // rotate labels 45 degrees
-                                        textAnchor="end"       // anchor for rotated text 
-                                        height={100}
-                                    />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Bar dataKey="count" barSize={35} >
-                                        <LabelList 
-                                            dataKey="count" 
-                                            position="top"
-                                            fill="black"
-                                            fontSize={15}
-                                            fontWeight={600}/>
-                                        {(stuCountbyLC ?? []).map((entry, index) => (
-                                            <Cell
-                                                key={index}
-                                                fill={AllStuColors [index]}                                                
+                                            fill={GradeColors[index % GradeColors.length]}                                            
                                             />
                                         ))}
                                     </Bar>
@@ -926,7 +747,7 @@ export default function Dashboard() {
                             </CardContent>
                         </Card>
                     </Grid>
-                </Grid>                  */}
+                </Grid>
                 
             </Box>
         </Container>

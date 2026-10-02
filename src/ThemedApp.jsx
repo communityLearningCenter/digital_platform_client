@@ -28,6 +28,7 @@ import AcaYrs from "./pages/AcademicYear";
 import ExamResults from "./pages/ExamResult";
 import ExamResultsList from "./pages/ExamResultList";
 import Dashboard from "./pages/Dashboard";
+import LCDashboard from "./pages/LCDashboard";
 import Grading from "./pages/Grading";
 import TeachingMaterials from "./pages/TeachingMaterials";
 
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
             {
                 path:"/dashboard",
                 element:<Dashboard/>,
+            },
+            {
+                path:"/lcdashboard",
+                element:<LCDashboard/>,
             },
             {
                 path:"/home",

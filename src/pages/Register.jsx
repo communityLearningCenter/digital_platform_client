@@ -88,6 +88,7 @@ export default function Register() {
                                 label="Role"
                                 sx={{width:470}}
                             >
+                                <MenuItem value="Super Admin">Super Admin</MenuItem>
                                 <MenuItem value="System Admin">System Admin</MenuItem>
                                 <MenuItem value="Volunteer Teacher">Volunteer Teacher</MenuItem>
                             </Select>

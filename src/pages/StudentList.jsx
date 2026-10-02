@@ -48,7 +48,7 @@ export default function StudentList() {
   const [academicYear, setAcademicYear] = useState("All");
   const [acayr, setAcaYr] = useState("");
 
-  const fetchFn = auth?.role === "System Admin" ? fetchAllStudents : fetchAllStudentsByLC;
+  const fetchFn = auth?.role === "System Admin" || auth?.role === "Super Admin" ? fetchAllStudents : fetchAllStudentsByLC;
 
   const [filters, setFilters] = useState([
     { id: 1, field: "status", value: "all" },

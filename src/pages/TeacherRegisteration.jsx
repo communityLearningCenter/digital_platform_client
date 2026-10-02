@@ -212,6 +212,7 @@ export default function TeacherRegisteration() {
                                     <MenuItem value=""></MenuItem>
                                     <MenuItem value="Volunteer Teacher">Volunteer Teacher</MenuItem>
                                     <MenuItem value="Kid's Club Teacher">Kid's Club Teacher</MenuItem>
+                                    <MenuItem value="Preschool Teacher">Preschool Teacher</MenuItem>
                                 </Select>
                             </FormControl>
 

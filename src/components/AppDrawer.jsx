@@ -54,6 +54,11 @@ function ReportCardIcon(props) {
 
 // 🔑 Menu config per role
 const menuConfig = {
+  "Super Admin": [
+    { label: "Dashboard", icon: <DashboardOutlinedIcon/>, path: (auth) => `/dashboard`},
+    { label: "Profile", icon: <ProfileIcon />, path: (auth) => `/profile/${auth.id}` },
+    { label: "Teaching Materials", icon: <ClassIcon />, path: (auth) => `/teachingmaterials/${auth.id}` },
+  ],
   "System Admin": [
     { label: "Dashboard", icon: <DashboardOutlinedIcon/>, path: (auth) => `/dashboard`},
     { label: "Profile", icon: <ProfileIcon />, path: (auth) => `/profile/${auth.id}` },
@@ -77,6 +82,7 @@ const menuConfig = {
     //{ label: "Calculate Avg Grade", icon: <ReportCardIcon />, path: "/calgrade" },
   ],
   "Volunteer Teacher": [
+    { label: "Dashboard", icon: <DashboardOutlinedIcon/>, path: (auth) => `/lcdashboard`},
     { label: "Profile", icon: <ProfileIcon />, path: (auth) => `/profile/${auth.id}` },
     { label: "Students", icon: <StuListIcon />, children: [
       { label: "Student Registeration", icon: <StudRegisterIcon />, path: "/registration" },

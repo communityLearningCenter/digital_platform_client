@@ -118,7 +118,6 @@ export async function fetchStudent(id){
 
 export async function fetchStudentbyStuID(stuID){
     const token = getToken();    
-    console.log("stuID : ", stuID)
     const res = await fetch(`${api}/registration/by-stuid/${stuID}`, {
         headers:{
             Authorization:`Bearer ${token}`,
@@ -146,9 +145,17 @@ export async function fetchStuCountbyAcaYr(){
 }
 
 export async function fetchStuCountbyGrade({queryKey}){
-    const [_key, acayr] = queryKey;   // get academic year
-    const token = getToken();    
-    const res = await fetch(`${api}/stuCountbyGrade?acayr=${encodeURIComponent(acayr)}`, {
+    const [_key, acayr, lcID] = queryKey;   // get academic year
+    const token = getToken();
+    const params = new URLSearchParams(); 
+    console.log("lcID : ", lcID);
+     if (acayr !== undefined && acayr !== null && acayr !== "") {
+        params.append("acayr", acayr); }
+
+    if (lcID !== undefined && lcID !== null && lcID !== "") 
+        { params.append("lcID", lcID); }    
+    console.log("params of fetchStuCountbyGrade : ", params.toString())
+    const res = await fetch(`${api}/stuCountbyGrade?${params.toString()}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -161,9 +168,15 @@ export async function fetchStuCountbyGrade({queryKey}){
 }
 
 export async function fetchKCStuCountbyLC({queryKey}){
-    const [_key, acayr] = queryKey;   // get academic year
-    const token = getToken();    
-    const res = await fetch(`${api}/kcStuCountbyLC?acayr=${encodeURIComponent(acayr)}`, {
+    const [_key, acayr, lcID] = queryKey;   // get academic year
+    const token = getToken(); 
+    const params = new URLSearchParams(); 
+     if (acayr !== undefined && acayr !== null && acayr !== "") {
+        params.append("acayr", acayr); }
+    
+    if (lcID !== undefined && lcID !== null && lcID !== "") 
+        { params.append("lcID", lcID); }
+    const res = await fetch(`${api}/kcStuCountbyLC?${params.toString()}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -191,12 +204,18 @@ export async function fetchAllStuCountbyLC({queryKey}){
 }
 
 export async function fetchStuCountbyGender({queryKey}){
-    const [_key, acayr] = queryKey;   // get academic year
-    const token = getToken();        
-    const res = await fetch(`${api}/stuCountbyGender?acayr=${encodeURIComponent(acayr)}`, {
-        headers:{
-            Authorization:`Bearer ${token}`,
-        },
+    const [, acayr, lcID] = queryKey;   // get academic year
+    const token = getToken();    
+    const params = new URLSearchParams();  
+    // acayr is temporary, so you can leave it out for now. 
+    if (acayr !== undefined && acayr !== null && acayr !== "") {
+        params.append("acayr", acayr); }
+    // Only send lcID if it has a value 
+    if (lcID !== undefined && lcID !== null && lcID !== "") {
+        params.append("lcID", lcID); }
+    const res = await fetch( `${api}/stuCountbyGender?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}`, 
+    }, 
     });
     if (!res.ok) {
         const text = await res.text(); // Read text to inspect error
@@ -206,9 +225,15 @@ export async function fetchStuCountbyGender({queryKey}){
 }
 
 export async function fetchStudentbyEnrollStatus({queryKey}){
-    const [_key, acayr] = queryKey;   // get academic year
+    const [_key, acayr, lcID] = queryKey;   // get academic year
     const token = getToken();
-    const res = await fetch(`${api}/stuCountbyEnrollStatus?acayr=${encodeURIComponent(acayr)}`, {
+    const params = new URLSearchParams(); 
+     if (acayr !== undefined && acayr !== null && acayr !== "") {
+        params.append("acayr", acayr); }
+
+    if (lcID !== undefined && lcID !== null && lcID !== "") 
+        { params.append("lcID", lcID); }
+    const res = await fetch(`${api}/stuCountbyEnrollStatus?${params.toString()}`, { 
         headers: {
             Authorization: `Bearer ${token}`,
         }
@@ -236,9 +261,17 @@ export async function fetchPWDStuCountbyGender({queryKey}){
 }
 
 export async function fetchTotalCount({queryKey}){
-    const [_key, acayr] = queryKey;   // get academic year
+    const [_key, acayr, lcID] = queryKey;   // get academic year
     const token = getToken();    
-    const res = await fetch(`${api}/totalCountforDashboard?acayr=${encodeURIComponent(acayr)}`, {
+    const params = new URLSearchParams(); 
+    // acayr is temporary, so you can leave it out for now. 
+    if (acayr !== undefined && acayr !== null && acayr !== "") {
+        params.append("acayr", acayr); }
+
+    if (lcID !== undefined && lcID !== null && lcID !== "") 
+        { params.append("lcID", lcID); }
+    const res = await fetch(`${api}/totalCountforDashboard?${params.toString()}`, {
+    //const res = await fetch(`${api}/totalCountforDashboard?acayr=${encodeURIComponent(acayr)}`, {
         headers:{
             Authorization:`Bearer ${token}`,
         },
@@ -424,6 +457,24 @@ export async function fetchTeacher(id){
     });
     if (!res.ok) {
         const text = await res.text(); // Read text to inspect error
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
+    }
+    return res.json();
+}
+
+export async function fetchTeacherCountforDashboard({ queryKey }){
+    const [_key, acayr, lcID] = queryKey;
+    const token = getToken();
+    const params = new URLSearchParams(); 
+    // acayr is temporary, so you can leave it out for now. 
+    // params.append("acayr", acayr); 
+    // Only send lcID if it has a value 
+    if (lcID !== undefined && lcID !== null && lcID !== "") 
+        { params.append("lcID", lcID); }
+    const res = await fetch( `${api}/totalTeacherCountforDashboard?${params.toString()}`, { headers: { Authorization: `Bearer ${token}`, }, } );
+    
+    if(!res.ok) {
+        const text = await res.text();
         throw new Error(`Fetch failed: ${res.status} ${res.statusText}\n${text}`);
     }
     return res.json();
